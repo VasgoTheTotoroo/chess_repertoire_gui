@@ -154,9 +154,6 @@ while True:
                 write_pgn.close()
         remove_temp_pgn()
     elif use == "7":
-        # possible improvment :
-        #   - rotate the board if we play Black
-        #   - put everything under the gui
         Window()
     else:
         print("I don't understand what you want to do, I quit!")

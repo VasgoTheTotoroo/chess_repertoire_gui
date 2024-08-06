@@ -66,6 +66,8 @@ class Board:
         self.black_color: str = "#2F1E0E"
         self.master_window = master_window
         self.arrows = []
+        self.board_flipped = False
+        self.board_flipped_offset = self.nb_rows-1
 
         self.white_to_play = True
         self.chess_board = chess.Board()
@@ -229,6 +231,9 @@ class Board:
         # update the board, h8 is 7 0
         old_square = file_dict[init_coord[0]]+rank_dict[init_coord[1]]
         new_square = file_dict[new_piece_x_coord]+rank_dict[new_piece_y_coord]
+        if self.board_flipped:
+            old_square = file_dict[self.board_flipped_offset-init_coord[0]]+rank_dict[self.board_flipped_offset-init_coord[1]]
+            new_square = file_dict[self.board_flipped_offset-new_piece_x_coord]+rank_dict[self.board_flipped_offset-new_piece_y_coord]
         uci_move = old_square+new_square
         if old_square.find(new_square) ==-1 and chess.Move.from_uci(uci_move) in self.chess_board.legal_moves:
             self.chess_board.push_uci(uci_move)
@@ -286,30 +291,40 @@ class Board:
                 )
         #draw the file and rank number/letter
         for i in range(self.nb_rows):
+            piece_idx = i
+            if self.board_flipped:
+                piece_idx = self.board_flipped_offset - i
             y_0: float = i * base_length
             self.canvas.create_text(
             y_0+0.9*base_length,
             self.board_width-0.15*base_length,
             font=("Arial", int(base_length * 0.2)),
-            text=file_dict[i],
+            text=file_dict[piece_idx],
             )
             self.canvas.create_text(
             0.15*base_length,
             y_0+0.15*base_length,
             font=("Arial", int(base_length * 0.2)),
-            text=rank_dict[i],
+            text=rank_dict[piece_idx],
             )
         # draw the pieces
         for i in range(0, self.nb_rows):
+            x_idx = i
+            if self.board_flipped:
+                x_idx=self.nb_rows-1-i
             for j in range(0, self.nb_rows):
-                x_0: float = i * base_length
-                y_0: float = j * base_length
+                y_idx = j
+                if self.board_flipped:
+                    y_idx=self.nb_rows-1-j
+                x_0: float = x_idx * base_length
+                y_0: float = y_idx * base_length
+                piece_to_draw = self.chess_board.__str__().replace(" ", "").replace("\n", "")[(j*self.nb_rows)+i]
                 self.draw_piece(
                     x_0=x_0,
                     y_0=y_0,
-                    piece=self.chess_board.__str__().replace(" ", "").replace("\n", "")[(j*self.nb_rows)+i],
+                    piece=piece_to_draw,
                     base_length=base_length,
-                    square_tag=str(j) + ";" + str(i),
+                    square_tag=str(y_idx) + ";" + str(x_idx),
                 )
         self.draw_arrows()
 
@@ -326,10 +341,18 @@ class Board:
         base_length: float = self.board_width / self.nb_rows
         for arrow in self.arrows:
             base_length_50 = base_length / 2
-            x0 = (reversed_file_dict[arrow[0]] * base_length) + base_length_50
-            y0 = (reversed_rank_dict[arrow[1]] * base_length) + base_length_50
-            x1 = (reversed_file_dict[arrow[2]] * base_length) + base_length_50
-            y1 = (reversed_rank_dict[arrow[3]] * base_length) + base_length_50
+            file_idx_start_arrow = reversed_file_dict[arrow[0]]
+            rank_idx_start_arrow = reversed_rank_dict[arrow[1]]
+            if self.board_flipped:
+                file_idx_start_arrow = self.board_flipped_offset - reversed_file_dict[arrow[0]]
+                rank_idx_start_arrow = self.board_flipped_offset - reversed_rank_dict[arrow[1]]
+                x1 = ((self.board_flipped_offset - reversed_file_dict[arrow[2]]) * base_length) + base_length_50
+                y1 = ((self.board_flipped_offset - reversed_rank_dict[arrow[3]]) * base_length) + base_length_50
+            else:
+                x1 = ((reversed_file_dict[arrow[2]]) * base_length) + base_length_50
+                y1 = ((reversed_rank_dict[arrow[3]]) * base_length) + base_length_50
+            x0 = (file_idx_start_arrow * base_length) + base_length_50
+            y0 = (rank_idx_start_arrow * base_length) + base_length_50
             fill="#000000" if arrow[4]=="1" else "#949494"
             width=13 if arrow[4]=="1" else 5
             move = self.repertoire_moves[int(arrow[5:])]
@@ -338,7 +361,7 @@ class Board:
                     if eval in list(eval_color.keys()):
                         fill = eval_color[eval]
                         break
-            self.canvas.create_line(x0, y0, x1, y1, arrow="last", width=width, fill=fill, tags=[str(reversed_file_dict[arrow[0]])+"com"+str(reversed_rank_dict[arrow[1]]), arrow[5:]])
+            self.canvas.create_line(x0, y0, x1, y1, arrow="last", width=width, fill=fill, tags=[str(file_idx_start_arrow)+"com"+str(rank_idx_start_arrow), arrow[5:]])
 
     def load_images(self):
         """Load the images and save it to the board object images_dict"""
@@ -360,6 +383,8 @@ class Board:
         with open(os.path.join(directory_path+r"\repertoire\\", b_or_w+'.repertoire.pickle'), 'rb') as handle:
             self.repertoire_loaded_moves.append(pickle.load(handle))
         traversal_tree(self.repertoire_loaded_moves[-1], self.repertoire_fens, self.repertoire_moves)
+        self.board_flipped = b_or_w =="b"
+        self.master_window.update_canvas(None)
         
         self.transposition_dict = build_fen_dict(self.repertoire_fens)
         self.player_color = b_or_w
@@ -433,5 +458,10 @@ class Board:
         self.repertoire_loaded_moves = []
         self.arrows = []
         self.player_color = "w"
+        self.board_flipped = False
         self.current_comments=[]
+        self.master_window.update_canvas(None)
+    
+    def flip_board(self):
+        self.board_flipped = not self.board_flipped
         self.master_window.update_canvas(None)

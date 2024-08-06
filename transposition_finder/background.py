@@ -1,9 +1,15 @@
 """This module is the background of the window"""
 
+import os
 from tkinter import Button, Label, Tk, Canvas
 from functools import partial
 
+import PIL.Image
+import PIL.ImageTk
+
 from utils import move_full_print
+
+directory_path = os.path.abspath(os.path.dirname(__file__))
 
 eval_color = {
     "$1": "#749BBF",
@@ -41,6 +47,11 @@ class Background:
         self.reset_button = Button(self.canvas, text="RESET", width=15, height=2, font=("Arial", 10), command=partial(self.reset_game))
         self.take_back_button = Button(self.canvas, text="Take back last move", width=15, height=2, font=("Arial", 10), state="disabled", command=partial(self.take_back_move))
 
+        image_file = PIL.Image.open(directory_path+r"\images\flip.png")
+        image_file = image_file.resize((17,17))
+        self.flip_img = PIL.ImageTk.PhotoImage(image_file) # keep a reference!
+        self.flip_button = Button(self.canvas, image=self.flip_img, command=partial(self.flip_board))
+
         self.last_move = Label(self.canvas, text = "", bd =0, wraplength=700, width=90, height=4, background="#ffe6bd", font=("Arial", 10))
         self.comments = []
         for _ in range(8):
@@ -58,6 +69,7 @@ class Background:
         self.Black_button.place(x=board_width+board_position+400, y=board_position)
         self.reset_button.place(x=board_width+board_position+575, y=board_position)
         self.take_back_button.place(x=board_width+board_position+750, y=board_position)
+        self.flip_button.place(x=board_width+board_position+10, y=board_position)
 
         if len(self.master_window.board.repertoire_loaded_moves) > 0 and self.master_window.board.repertoire_loaded_moves[-1].name != "":
             last_move = self.master_window.board.repertoire_loaded_moves[-1]
@@ -111,3 +123,6 @@ class Background:
     
     def take_back_move(self):
         self.master_window.board.take_back_last()
+    
+    def flip_board(self):
+        self.master_window.board.flip_board()
