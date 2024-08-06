@@ -344,12 +344,13 @@ class Board:
         """Load the images and save it to the board object images_dict"""
         base_length: float = self.board_width / self.nb_rows
         images_dict = {}
-        for file in os.listdir(directory_path+r"\pieces_img"):
-                full_path_file = directory_path+r"\pieces_img\\"+file
-                image_file = PIL.Image.open(full_path_file)
-                image_file = image_file.resize((int(base_length),int(base_length)))
-                piece = file[1] if file[0]=="b" else file[1].upper()
-                images_dict[piece] = PIL.ImageTk.PhotoImage(image_file)
+        for file in os.listdir(directory_path+r"\images\pieces"):
+                if file.endswith(".png"):
+                    full_path_file = directory_path+r"\images\pieces\\"+file
+                    image_file = PIL.Image.open(full_path_file)
+                    image_file = image_file.resize((int(base_length),int(base_length)))
+                    piece = file[1] if file[0]=="b" else file[1].upper()
+                    images_dict[piece] = PIL.ImageTk.PhotoImage(image_file)
         self.images_dict = images_dict
     
     def switch_random(self):
