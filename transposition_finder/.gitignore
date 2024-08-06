@@ -4,5 +4,5 @@ __pycache__/
 *$py.class
 
 deprecated/
-pgn/
+pgn/*
 pgn-extract.exe
