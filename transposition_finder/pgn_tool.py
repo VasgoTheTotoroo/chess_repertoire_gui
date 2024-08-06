@@ -1,6 +1,6 @@
+import pickle
 from move import *
 from utils import *
-from gui import *
 import tkinter as tk
 import textwrap
 import csv
@@ -10,7 +10,7 @@ from window import Window
 
 while True:
     directory_path = os.path.abspath(os.path.dirname(__file__))
-    use = input("What do you want to do?\n[1]find transpositions\n[2]find all of your deviation\n[3]split pgns exported with chessbase\n[4]save your repertoire to a file\n[5]play a game (text) DEPRECATED\n[6]Fill opening names\n[7]Play a game (GUI)\n")
+    use = input("What do you want to do?\n[1]find transpositions\n[2]find all of your deviation\n[3]split pgns exported with chessbase\n[4]save your repertoire to a file\n[5]Fill opening names\n[6]Play a game (GUI)\n")
 
     if use == "1":
         fake_move = read_and_build_tree()
@@ -106,18 +106,8 @@ while True:
         with open(os.path.join(directory_path+r"\repertoire\\", b_or_w+'.repertoire.pickle'), 'wb') as handle:
             pickle.dump(fake_move, handle, protocol=pickle.HIGHEST_PROTOCOL)
         print("repertoire saved!")
-
-    elif use == "5":
-        window = tk.Tk()
-        window.title('échecs')
-        window.geometry('1200x950')
-        window.protocol("WM_DELETE_WINDOW", lambda : window.destroy())
-        
-        reset_game(window)
-        
-        window.mainloop()
     
-    elif use == "6":
+    elif use == "5":
         eco_codes=[]
         for file in os.listdir(directory_path+r"\chess-openings"):
             full_path_file = directory_path+r"\chess-openings\\"+file
@@ -153,7 +143,7 @@ while True:
                 write_pgn.write(fen_pgn)
                 write_pgn.close()
         remove_temp_pgn()
-    elif use == "7":
+    elif use == "6":
         Window()
     else:
         print("I don't understand what you want to do, I quit!")
