@@ -4,7 +4,6 @@ from tkinter import Tk
 from background import Background
 from board import Board
 
-
 class Window:
     """The window of the game"""
 

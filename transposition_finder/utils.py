@@ -1,6 +1,7 @@
 import re
 import os
 import subprocess
+
 from collections import defaultdict
 from chess import Move
 

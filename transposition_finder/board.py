@@ -3,11 +3,11 @@
 import os
 import pickle
 import random
-from tkinter import Tk, Canvas, Event
 import chess
 import PIL.Image
 import PIL.ImageTk
 
+from tkinter import Tk, Canvas, Event
 from utils import build_fen_dict, find_all_children, is_not_a_bad_move, move_full_print, traversal_tree
 
 directory_path = os.path.abspath(os.path.dirname(__file__))

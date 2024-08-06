@@ -1,12 +1,11 @@
 """This module is the background of the window"""
 
 import os
-from tkinter import Button, Label, Tk, Canvas
-from functools import partial
-
 import PIL.Image
 import PIL.ImageTk
 
+from tkinter import Button, Label, Tk, Canvas
+from functools import partial
 from utils import move_full_print
 
 directory_path = os.path.abspath(os.path.dirname(__file__))

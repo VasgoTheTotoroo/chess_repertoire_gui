@@ -4,9 +4,10 @@ import re
 import subprocess
 import textwrap
 import csv
+
 from move import Move
-from utils import build_fen_dict, find_all_children, french_chess, is_not_a_bad_move, read_and_build_tree, remove_temp_pgn, traversal_tree
 from window import Window
+from utils import build_fen_dict, find_all_children, french_chess, is_not_a_bad_move, read_and_build_tree, remove_temp_pgn, traversal_tree
 
 # C:\Users\vassia\Desktop\echec\chess_repertoire_gui\transposition_finder\pgn_tool.py
 
