@@ -380,6 +380,7 @@ class Board:
         self.play_random = not self.play_random
     
     def choose_color(self, b_or_w):
+        self.reset_game()
         with open(os.path.join(directory_path+r"\repertoire\\", b_or_w+'.repertoire.pickle'), 'rb') as handle:
             self.repertoire_loaded_moves.append(pickle.load(handle))
         traversal_tree(self.repertoire_loaded_moves[-1], self.repertoire_fens, self.repertoire_moves)
