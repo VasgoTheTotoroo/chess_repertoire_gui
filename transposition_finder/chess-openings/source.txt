@@ -1,0 +1,2 @@
+Source : https://github.com/lichess-org/chess-openings
+All right reserved to lichess.org on the opening files
