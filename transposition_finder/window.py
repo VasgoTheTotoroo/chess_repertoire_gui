@@ -11,6 +11,8 @@ class Window:
         self,
         init_width: int = 1700,
         init_height: int = 800,
+        init_x: int = 0,
+        init_y: int = 0,
     ):
         """Init the window with Parameters:
         init_width (int): the width of the window
@@ -18,7 +20,7 @@ class Window:
         """
 
         self.window: Tk = Tk()
-        self.init_window(init_width=init_width, init_height=init_height)
+        self.init_window(init_width=init_width, init_height=init_height, init_x=init_x, init_y=init_y)
 
         if init_width > init_height:
             base_length: int = init_height
@@ -43,10 +45,10 @@ class Window:
 
         self.window.mainloop()
 
-    def init_window(self, init_width: int, init_height: int):
+    def init_window(self, init_width: int, init_height: int, init_x: int, init_y: int):
         """Init the main Tinker window"""
 
-        self.window.geometry(newGeometry=str(init_width) + "x" + str(init_height))
+        self.window.geometry(newGeometry=str(init_width) + "x" + str(init_height) + "+" + str(init_x) + "+" + str(init_y))
         self.window.title("Chess")
         self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
 

@@ -2,20 +2,21 @@ import os
 import pickle
 import re
 import subprocess
+import sys
 import textwrap
 import csv
+import locale
 
 from move import Move
 from window import Window
 from utils import build_fen_dict, find_all_children, french_chess, is_not_a_bad_move, read_and_build_tree, remove_temp_pgn, traversal_tree
 
-# C:\Users\vassia\Desktop\echec\chess_repertoire_gui\transposition_finder\pgn_tool.py
-
-while True:
+def main(usecase):
     directory_path = os.path.abspath(os.path.dirname(__file__))
-    use = input("What do you want to do?\n[1]find transpositions\n[2]find all of your deviation\n[3]split pgns exported with chessbase\n[4]save your repertoire to a file\n[5]Fill opening names\n[6]Play a game (GUI)\n")
-
-    if use == "1":
+    is_french = locale.getlocale()[0] == "fr_FR"
+    
+    # find all the transpositions in the pgn files
+    if usecase == "find_transpositions":
         fake_move = read_and_build_tree()
         
         fens = []
@@ -48,7 +49,10 @@ while True:
         for i, duplication in enumerate(reversed(true_duplicates)):
             strings = []
             for idx in duplication:
-                strings.append("Transposition "+french_chess(moves[idx].str_to_root()))
+                if is_french:
+                    strings.append("Transposition "+french_chess(moves[idx].str_to_root()))
+                else:
+                    strings.append("Transposition "+moves[idx].str_to_root())
             # Remove mates and draw repetition moves
             if strings[1].find(strings[0]) > -1 or strings[0][-1] == "#":
                 # print("REPETITION OR MATE")
@@ -63,7 +67,10 @@ while True:
                     print(s)
                 print("\n")
 
-    elif use=="2":
+    # find all the deviationin the pgn files
+    elif usecase=="find_deviations":
+        if len(sys.argv) < 3:
+            raise Exception("You need to provide a color argument for find_deviations")
         fake_move = read_and_build_tree()
         fens = []
         moves = []
@@ -71,9 +78,9 @@ while True:
         
         D = build_fen_dict(fens)
         
-        color = input("Which color do you want to find deviation for?[w/b]\n")
+        color = sys.argv[2]
         if color !="w" and color !="b":
-            print("I don't know this color!")
+            raise Exception("The color argument is not b or w")
         else:
             deviation = 1
             for idx, fen in enumerate(fens):
@@ -82,11 +89,17 @@ while True:
                     print("-----deviation "+str(deviation)+"-----")
                     deviation = deviation + 1
                     for c in all_children:
-                        print(french_chess(c.str_to_root())+(" "+c.comments if c.comments else ""))
+                        if is_french:
+                            print(french_chess(c.str_to_root())+(" "+c.comments if c.comments else ""))
+                        else:
+                            print(c.str_to_root())+(" "+c.comments if c.comments else "")
 
-    elif use == "3":
-        # file_name = input("What is the file name?\n")
-        file = open(directory_path+r"\pgns\game1.pgn", encoding="utf-8")
+    # split the pgn file exported from chessbase to one pgn per game
+    elif usecase == "split_pgn":
+        if len(sys.argv) < 3:
+            raise Exception("You need to provide a file name argument for split_pgn. The file need to be in the pgn subdirectory")
+        file_name = sys.argv[2]
+        file = open(directory_path+r"\pgns\\"+file_name, encoding="utf-8")
         file_str = file.read().split("[Event \"")
 
         for i, s in enumerate(file_str[1:]):
@@ -103,24 +116,27 @@ while True:
             f.close()
         file.close()
 
-    elif use == "4":
+    # save your pgns to a repertoire file
+    elif usecase == "save_to_repertoire":
         fake_move = read_and_build_tree()
         b_or_w = input("save it as black or white repertoire?[w/b]\n")
         with open(os.path.join(directory_path+r"\repertoire\\", b_or_w+'.repertoire.pickle'), 'wb') as handle:
             pickle.dump(fake_move, handle, protocol=pickle.HIGHEST_PROTOCOL)
         print("repertoire saved!")
     
-    elif use == "5":
+    # Fill opening names into your pgns
+    elif usecase == "fill_opening_names":
         eco_codes=[]
         for file in os.listdir(directory_path+r"\chess-openings"):
-            full_path_file = directory_path+r"\chess-openings\\"+file
-            tab_file = open(full_path_file, encoding="utf-8")
-            tsv_file = csv.reader(tab_file, delimiter="\t")
-            for line in tsv_file:
-                if line[0]!="eco":
-                    truncated_fen = line[4][0:line[4].find(" ")+2]
-                    eco_codes.append([line[1], truncated_fen])
-            tab_file.close()
+            if file.endswith(".tsv"):
+                full_path_file = directory_path+r"\chess-openings\\"+file
+                tab_file = open(full_path_file, encoding="utf-8")
+                tsv_file = csv.reader(tab_file, delimiter="\t")
+                for line in tsv_file:
+                    if line[0]!="eco":
+                        truncated_fen = line[4][0:line[4].find(" ")+2]
+                        eco_codes.append([line[1], truncated_fen])
+                tab_file.close()
         
         for file in os.listdir(directory_path+r"\pgns"):
             fake_move = Move("", fen="w ")
@@ -146,9 +162,12 @@ while True:
                 write_pgn.write(fen_pgn)
                 write_pgn.close()
         remove_temp_pgn()
-    elif use == "6":
+    else:
+        raise Exception("The argument you passed to the program is not known")
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        # Play a game (GUI)
         Window()
     else:
-        print("I don't understand what you want to do, I quit!")
-        break
-    print("\n")
+        main(sys.argv[1])

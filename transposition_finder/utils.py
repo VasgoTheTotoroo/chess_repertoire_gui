@@ -3,7 +3,7 @@ import os
 import subprocess
 
 from collections import defaultdict
-from chess import Move
+from move import Move
 
 directory_path = os.path.abspath(os.path.dirname(__file__))
 

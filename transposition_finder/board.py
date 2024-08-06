@@ -408,10 +408,10 @@ class Board:
 
         self.update_comment_to_display([move])
 
-        #we know the color of the first_move
         if move.fen!="w ":
             color = move.fen[move.fen.find(" ")+1]
         else:
+            # the first move loaded by our repertoire has "w " for fen
             color = "w"
         
         new_move = move
