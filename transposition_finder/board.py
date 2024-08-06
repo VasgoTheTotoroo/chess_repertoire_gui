@@ -444,9 +444,10 @@ class Board:
     def take_back_last(self):
         self.white_to_play = not self.white_to_play
         self.chess_board.pop()
-        self.repertoire_loaded_moves.pop()
-        self.next_move(self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b")
-        self.current_comments = []
+        if len(self.repertoire_loaded_moves) > 0:
+            self.repertoire_loaded_moves.pop()
+            self.next_move(self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b")
+            self.current_comments = []
         self.master_window.update_canvas(None)
         
     def reset_game(self):
