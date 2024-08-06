@@ -6,10 +6,10 @@ import textwrap
 import csv
 from window import Window
 
-# C:\Users\vassia\Desktop\echec\transposition_finder\pgn_tool.py
+# C:\Users\vassia\Desktop\echec\chess_repertoire_gui\transposition_finder\pgn_tool.py
 
-# improvment => have a real chess board you can move
 while True:
+    directory_path = os.path.abspath(os.path.dirname(__file__))
     use = input("What do you want to do?\n[1]find transpositions\n[2]find all of your deviation\n[3]split pgns exported with chessbase\n[4]save your repertoire to a file\n[5]play a game (text) DEPRECATED\n[6]Fill opening names\n[7]Play a game (GUI)\n")
 
     if use == "1":
@@ -83,7 +83,7 @@ while True:
 
     elif use == "3":
         # file_name = input("What is the file name?\n")
-        file = open(r"C:\Users\vassia\Desktop\echec\transposition_finder\pgns\game1.pgn", encoding="utf-8")
+        file = open(directory_path+r"\pgns\game1.pgn", encoding="utf-8")
         file_str = file.read().split("[Event \"")
 
         for i, s in enumerate(file_str[1:]):
@@ -95,7 +95,7 @@ while True:
                 color_name = "Black"
             file_name = "("+str(i+1)+") "+s[s.find("["+color_name)+8:s.find("\"", s.find("["+color_name)+8)]+".pgn"
             print(file_name)
-            f = open(os.path.join(r"C:\Users\vassia\Desktop\echec\transposition_finder\pgns\\", file_name), "w",  encoding="utf-8")
+            f = open(os.path.join(directory_path+r"\pgns\\", file_name), "w",  encoding="utf-8")
             f.write(s[:s.find("\n\n")+2]+splitted_file)
             f.close()
         file.close()
@@ -103,7 +103,7 @@ while True:
     elif use == "4":
         fake_move = read_and_build_tree()
         b_or_w = input("save it as black or white repertoire?[w/b]\n")
-        with open(os.path.join(r"C:\Users\vassia\Desktop\echec\transposition_finder\repertoire\\", b_or_w+'.repertoire.pickle'), 'wb') as handle:
+        with open(os.path.join(directory_path+r"\repertoire\\", b_or_w+'.repertoire.pickle'), 'wb') as handle:
             pickle.dump(fake_move, handle, protocol=pickle.HIGHEST_PROTOCOL)
         print("repertoire saved!")
 
@@ -119,8 +119,8 @@ while True:
     
     elif use == "6":
         eco_codes=[]
-        for file in os.listdir(r"C:\Users\vassia\Desktop\echec\transposition_finder\chess-openings"):
-            full_path_file = r"C:\Users\vassia\Desktop\echec\transposition_finder\chess-openings\\"+file
+        for file in os.listdir(directory_path+r"\chess-openings"):
+            full_path_file = directory_path+r"\chess-openings\\"+file
             tab_file = open(full_path_file, encoding="utf-8")
             tsv_file = csv.reader(tab_file, delimiter="\t")
             for line in tsv_file:
@@ -129,11 +129,11 @@ while True:
                     eco_codes.append([line[1], truncated_fen])
             tab_file.close()
         
-        for file in os.listdir(r"C:\Users\vassia\Desktop\echec\transposition_finder\pgns"):
+        for file in os.listdir(directory_path+r"\pgns"):
             fake_move = Move("", fen="w ")
-            full_path_file = r"C:\Users\vassia\Desktop\echec\transposition_finder\pgns\\"+file
+            full_path_file = directory_path+r"\pgns\\"+file
             if file.endswith(".pgn") and file != "game1.pgn":
-                subprocess.check_call([r"C:\Users\vassia\Desktop\echec\transposition_finder\pgn-extract.exe", "-F", "--fencomments", full_path_file, "-o", full_path_file+"_temp.pgn"])
+                subprocess.check_call([directory_path+r"\pgn-extract.exe", "-F", "--fencomments", full_path_file, "-o", full_path_file+"_temp.pgn"])
 
                 temp_pgn = open(full_path_file+"_temp.pgn", "r", encoding="utf-8")
                 fen_pgn = temp_pgn.read().replace('\n', ' ')
@@ -156,6 +156,7 @@ while True:
     elif use == "7":
         # possible improvment :
         #   - rotate the board if we play Black
+        #   - put everything under the gui
         Window()
     else:
         print("I don't understand what you want to do, I quit!")

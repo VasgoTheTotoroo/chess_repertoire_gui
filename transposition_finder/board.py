@@ -10,6 +10,8 @@ import PIL.ImageTk
 
 from utils import build_fen_dict, find_all_children, is_not_a_bad_move, move_full_print, traversal_tree
 
+directory_path = os.path.abspath(os.path.dirname(__file__))
+
 file_dict = {
     0: "a",
     1: "b",
@@ -342,8 +344,8 @@ class Board:
         """Load the images and save it to the board object images_dict"""
         base_length: float = self.board_width / self.nb_rows
         images_dict = {}
-        for file in os.listdir(r"C:\Users\vassia\Desktop\echec\transposition_finder\pieces_img"):
-                full_path_file = r"C:\Users\vassia\Desktop\echec\transposition_finder\pieces_img\\"+file
+        for file in os.listdir(directory_path+r"\pieces_img"):
+                full_path_file = directory_path+r"\pieces_img\\"+file
                 image_file = PIL.Image.open(full_path_file)
                 image_file = image_file.resize((int(base_length),int(base_length)))
                 piece = file[1] if file[0]=="b" else file[1].upper()
@@ -354,7 +356,7 @@ class Board:
         self.play_random = not self.play_random
     
     def choose_color(self, b_or_w):
-        with open(os.path.join(r"C:\Users\vassia\Desktop\echec\transposition_finder\repertoire\\", b_or_w+'.repertoire.pickle'), 'rb') as handle:
+        with open(os.path.join(directory_path+r"\repertoire\\", b_or_w+'.repertoire.pickle'), 'rb') as handle:
             self.repertoire_loaded_moves.append(pickle.load(handle))
         traversal_tree(self.repertoire_loaded_moves[-1], self.repertoire_fens, self.repertoire_moves)
         

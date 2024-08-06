@@ -6,6 +6,7 @@ import os
 from utils import *
 
 random_activated = False
+directory_path = os.path.abspath(os.path.dirname(__file__))
 
 eval_color = {
     "$1": "#749BBF",
@@ -25,7 +26,7 @@ def reset_window_elements(window):
     return canvas
 
 def choose_color(b_or_w, window):
-    with open(os.path.join(r"C:\Users\vassia\Desktop\echec\transposition_finder\repertoire\\", b_or_w+'.repertoire.pickle'), 'rb') as handle:
+    with open(os.path.join(directory_path+r"\repertoire\\", b_or_w+'.repertoire.pickle'), 'rb') as handle:
         fake_move = pickle.load(handle)
     fens = []
     moves = []

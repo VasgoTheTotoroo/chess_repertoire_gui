@@ -4,6 +4,8 @@ import os
 import subprocess
 from collections import defaultdict
 
+directory_path = os.path.abspath(os.path.dirname(__file__))
+
 evaluation_dict = {
     "$1": "!",
     "$2": "?",
@@ -100,10 +102,10 @@ def read_and_build_tree():
     while True:
         fake_move = Move("", fen="w ")
         try:
-            for file in os.listdir(r"C:\Users\vassia\Desktop\echec\transposition_finder\pgns"):
-                full_path_file = r"C:\Users\vassia\Desktop\echec\transposition_finder\pgns\\"+file
+            for file in os.listdir(directory_path+r"\pgns"):
+                full_path_file = directory_path+r"\pgns\\"+file
                 if file.endswith(".pgn") and file != "game1.pgn":
-                    subprocess.check_call([r"C:\Users\vassia\Desktop\echec\transposition_finder\pgn-extract.exe", "-F", "--fencomments", full_path_file, "-o", full_path_file+"_temp.pgn"])
+                    subprocess.check_call([directory_path+r"\pgn-extract.exe", "-F", "--fencomments", full_path_file, "-o", full_path_file+"_temp.pgn"])
 
                     temp_pgn = open(full_path_file+"_temp.pgn", encoding="utf-8")
                     fen_pgn = temp_pgn.read().replace('\n', ' ')
@@ -144,7 +146,7 @@ def is_not_a_bad_move(move):
         return False
     return True
 
-def remove_temp_pgn(path = r"C:\Users\vassia\Desktop\echec\transposition_finder\pgns"):
+def remove_temp_pgn(path = directory_path+r"\pgns"):
     for file in os.listdir(path):
         if file.endswith("_temp.pgn"):
             if os.path.exists(path+"\\"+file):
