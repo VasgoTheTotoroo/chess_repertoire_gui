@@ -1,2 +1,3 @@
 # chess_repertoire_gui
-A project that was first about finding moves transposition across different files and now about building an GUI to have fun with your own repertoire
+A project that was first about finding moves transposition across different files and now about building an GUI to have fun with your own repertoire.
+You need to download pgn-extract here https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/ and put the .exe file in the root directory along with the .py files if you want to use all the features of the repertoire reader and building.
