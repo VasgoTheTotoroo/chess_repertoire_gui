@@ -4,6 +4,7 @@ from tkinter import Tk
 from background import Background
 from board import Board
 
+
 class Window:
     """The window of the game"""
 
@@ -20,7 +21,9 @@ class Window:
         """
 
         self.window: Tk = Tk()
-        self.init_window(init_width=init_width, init_height=init_height, init_x=init_x, init_y=init_y)
+        self.init_window(
+            init_width=init_width, init_height=init_height, init_x=init_x, init_y=init_y
+        )
 
         if init_width > init_height:
             base_length: int = init_height
@@ -32,13 +35,13 @@ class Window:
             init_width=init_width,
             init_height=init_height,
             base_length=base_length,
-            master_window = self,
+            master_window=self,
         )
 
         self.board: Board = Board(
             tk_window=self.window,
             base_length=base_length,
-            master_window = self,
+            master_window=self,
         )
 
         self.bind_events()
@@ -48,7 +51,15 @@ class Window:
     def init_window(self, init_width: int, init_height: int, init_x: int, init_y: int):
         """Init the main Tinker window"""
 
-        self.window.geometry(newGeometry=str(init_width) + "x" + str(init_height) + "+" + str(init_x) + "+" + str(init_y))
+        self.window.geometry(
+            newGeometry=str(init_width)
+            + "x"
+            + str(init_height)
+            + "+"
+            + str(init_x)
+            + "+"
+            + str(init_y)
+        )
         self.window.title("Chess")
         self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
 
@@ -63,7 +74,12 @@ class Window:
         else:
             self.base_length: int = window_width
 
-        self.background.update(window=self.window, play_random=self.board.play_random, board_width=self.board.board_width, board_position=self.board.board_position)
+        self.background.update(
+            window=self.window,
+            play_random=self.board.play_random,
+            board_width=self.board.board_width,
+            board_position=self.board.board_position,
+        )
         self.board.update(base_length=self.base_length)
 
     def bind_events(self):
