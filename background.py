@@ -49,7 +49,7 @@ class Background:
         image_file = PIL.Image.open(directory_path+r"\images\flip.png")
         image_file = image_file.resize((17,17))
         self.flip_img = PIL.ImageTk.PhotoImage(image_file) # keep a reference!
-        self.flip_button = Button(self.canvas, image=self.flip_img, command=partial(self.flip_board))
+        self.flip_button = Button(self.canvas, image=self.flip_img, command=partial(self.flip_board)) # type: ignore
 
         self.last_move = Label(self.canvas, text = "", bd =0, wraplength=700, width=90, height=4, background="#ffe6bd", font=("Arial", 10))
         self.comments = []

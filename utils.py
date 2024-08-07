@@ -153,7 +153,7 @@ def remove_temp_pgn(path = directory_path+r"\pgns"):
             if os.path.exists(path+"\\"+file):
                 os.remove(path+"\\"+file)
 
-def find_all_children(transposition_dict, fen, moves, move_idx, remove_from_dict=False):
+def find_all_children(transposition_dict, fen, moves, move_idx, remove_from_dict=False) -> list[Move]:
     all_children = moves[move_idx].children
     if(fen in list(transposition_dict.keys())):
         #the fen is found in other files

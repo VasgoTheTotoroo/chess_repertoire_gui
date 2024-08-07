@@ -1,12 +1,12 @@
 class Move():
-    def __init__(self, name, fen=None, comments=None, parent=None, evaluation=None, main_variant=True):
-        self.name = name
-        self.parent = parent
-        self.fen = fen
-        self.comments = comments
-        self.evaluation = evaluation
-        self.children = []
-        self.main_variant = main_variant
+    def __init__(self, name, fen, comments=None, parent=None, evaluation=None, main_variant=True):
+        self.name: str = name
+        self.parent: Move | None = parent
+        self.fen: str = fen
+        self.comments: str | None = comments
+        self.evaluation: list[str] | None = evaluation
+        self.children: list[Move] = []
+        self.main_variant: bool = main_variant
 
     def __str__(self, com_fen=False, full_str = False) -> str:
         str_add = ""
@@ -35,7 +35,7 @@ class Move():
             return 0
         return 1+self.parent.get_depth()
 
-    def __eq__(self, __value: object) -> bool:
+    def __eq__(self, __value) -> bool:
         fen1 = self.fen[:self.fen.find(" ", self.fen.find(" ")+1)]
         fen2 = __value.fen[:__value.fen.find(" ", __value.fen.find(" ")+1)]
         # print("1:"+fen1)
@@ -50,7 +50,7 @@ class Move():
     def __hash__(self):
         return hash(self.fen[:self.fen.find(" ", self.fen.find(" ")+1)])
 
-    def str_to_root(self):
+    def str_to_root(self) -> str:
         if self.parent is None:
             return self.name
         string = self.name

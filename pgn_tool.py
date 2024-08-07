@@ -92,7 +92,7 @@ def main(usecase):
                         if is_french:
                             print(french_chess(c.str_to_root())+(" "+c.comments if c.comments else ""))
                         else:
-                            print(c.str_to_root())+(" "+c.comments if c.comments else "")
+                            print(c.str_to_root()+(" "+c.comments if c.comments else ""))
 
     # split the pgn file exported from chessbase to one pgn per game
     elif usecase == "split_pgn":
