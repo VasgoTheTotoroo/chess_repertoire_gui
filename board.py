@@ -427,7 +427,6 @@ class Board:
         self.play_random = not self.play_random
 
     def choose_color(self, b_or_w):
-        self.reset_game()
         with open(
             os.path.join(
                 directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"
@@ -488,7 +487,7 @@ class Board:
             self.repertoire_loaded_moves.append(new_move)
             self.chess_board.push_san(new_move.name[new_move.name.find(" ") + 1 :])
             self.white_to_play = not self.white_to_play
-            self.draw()
+            self.master_window.update_canvas(None)
 
         idx = self.repertoire_moves.index(new_move)
         all_children = find_all_children(

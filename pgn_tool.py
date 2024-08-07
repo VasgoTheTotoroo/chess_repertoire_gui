@@ -109,8 +109,7 @@ def main(usecase):
                         )
                     else:
                         print(
-                            c.str_to_root()
-                            + (" " + c.comments if c.comments else "")
+                            c.str_to_root() + (" " + c.comments if c.comments else "")
                         )
 
     # split the pgn file exported from chessbase to one pgn per game
