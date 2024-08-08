@@ -6,5 +6,6 @@ __pycache__/
 deprecated/
 pgns/
 pgn-extract.exe
+repertoire/
 
 .vscode
