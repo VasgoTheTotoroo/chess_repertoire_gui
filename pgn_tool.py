@@ -15,6 +15,7 @@ from utils import (
     is_not_a_bad_move,
     read_and_build_tree,
     remove_temp_pgn,
+    repertoire_to_pgn,
     traversal_tree,
 )
 
@@ -229,6 +230,15 @@ def main(usecase):
                 write_pgn.write(fen_pgn)
                 write_pgn.close()
         remove_temp_pgn()
+    elif usecase == "export_repertoire":
+        if len(sys.argv) < 3:
+            raise ValueError(
+                "You need to provide a color argument for export_repertoire. The file will be then saved under \\pgns"
+            )
+        b_or_w = sys.argv[2]
+        if b_or_w != "w" and b_or_w != "b":
+            raise ValueError("The color argument is not b or w")
+        repertoire_to_pgn(b_or_w)
     else:
         raise ValueError("The argument you passed to the program is not known")
 

@@ -1,3 +1,4 @@
+import pickle
 import re
 import os
 import subprocess
@@ -52,7 +53,7 @@ def find_parens(s):
     return toret
 
 
-def construct_tree(move, pgn, nb):
+def construct_tree(move, pgn, nb, file_header):
     if len(nb) == 0:
         return
     if pgn[nb[0].start() - 1] == "(":
@@ -80,18 +81,17 @@ def construct_tree(move, pgn, nb):
             ),
             main_variant=False,
         )
-        # print("m="+str(move))
-        # print("nm="+str(new_move))
         Move.add_child(move.parent, new_move)
         ending_parenthesis = find_parens(pgn)[nb[0].start() - 1]
         sub_pgn = pgn[nb[0].start() : ending_parenthesis]
         new_nb = list(re.finditer(r"\d+\.+(?![^{]*})", sub_pgn))
         new_nb.pop(0)
-        construct_tree(new_move, sub_pgn, new_nb)
+        construct_tree(new_move, sub_pgn, new_nb, None)
         return construct_tree(
             move,
             pgn[ending_parenthesis + 1 :],
             list(re.finditer(r"\d+\.+(?![^{]*})", pgn[ending_parenthesis + 1 :])),
+            None,
         )
     else:
         start_bracket_idx = pgn.find("{", pgn.find(" ", nb[0].end() + 1))
@@ -117,10 +117,11 @@ def construct_tree(move, pgn, nb):
                 else None
             ),
             main_variant=True,
+            file_header=file_header if pgn[0:3] == "1. " else None
         )
         Move.add_child(move, new_move)
         nb.pop(0)
-        construct_tree(new_move, pgn, nb)
+        construct_tree(new_move, pgn, nb, None)
 
 
 def read_and_build_tree():
@@ -142,8 +143,10 @@ def read_and_build_tree():
                     )
 
                     temp_pgn = open(full_path_file + "_temp.pgn", encoding="utf-8")
-                    fen_pgn = temp_pgn.read().replace("\n", " ")
+                    fen_pgn = temp_pgn.read()
                     temp_pgn.close()
+                    file_header = fen_pgn[0:fen_pgn.find("\n\n")]
+                    fen_pgn = fen_pgn.replace("\n", " ")
                     fen_pgn = re.sub(
                         r"\( \d+\.",
                         lambda match: match.group(0).replace(" ", ""),
@@ -155,7 +158,7 @@ def read_and_build_tree():
 
                     # find all the main moves number and put it in the nb list
                     nb = list(re.finditer(r"\d+\.+(?![^{]*})", fen_pgn))
-                    construct_tree(fake_move, fen_pgn, nb)
+                    construct_tree(fake_move, fen_pgn, nb, file_header)
             remove_temp_pgn()
             return fake_move
         except subprocess.CalledProcessError as inst:
@@ -163,6 +166,59 @@ def read_and_build_tree():
                 "--------------------- ERROR: " + str(inst) + " ---------------------"
             )
             remove_temp_pgn()
+
+
+def repertoire_to_pgn(b_or_w):
+    with open(
+            os.path.join(
+                directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"
+            ),
+            "rb",
+        ) as handle:
+        fake_move: Move = pickle.load(handle)
+    for i, child in enumerate(fake_move.children):
+        if child.file_header:
+            white_idx = child.file_header.find("White ")
+            if child.file_header[white_idx+7] != "?":
+                file_name = child.file_header[white_idx+7:child.file_header.find("\"", white_idx+7)]
+            else:
+                black_idx = child.file_header.find("Black ")
+                file_name = child.file_header[black_idx+7:child.file_header.find("\"", black_idx+7)]
+            file_name = "("+str(i)+")"+ file_name+".pgn"
+            print(file_name)
+            write_pgn = open(directory_path + r"\pgns\\" + file_name, "w", encoding="utf-8")
+            write_pgn.write(child.file_header+"\n\n")
+        write_pgn.write(build_pgn_move(child)+" *\n\n")
+        write_pgn.close()
+
+def build_pgn_move(move: Move | None, only_children = False) -> str:
+    if move is None:
+        return ""
+    if only_children:
+        move_str=""
+    else:
+        move_str = build_move_unitary(move)
+    if move.children:
+        move.children.sort(key=lambda c: int(not c.main_variant))
+        move_str+=" "+build_move_unitary(move.children[0])
+        for c in move.children[1:]:
+            move_str+=" ("
+            move_str+=build_pgn_move(c)
+            move_str+=")"
+        move_str+= build_pgn_move(move.children[0], True)
+    else:
+        return move_str
+    return move_str
+
+
+def build_move_unitary(move: Move):
+    comment = ""
+    if move.comments is not None:
+        comment = " {"+move.comments+"}"
+    move_eval = ""
+    if move.evaluation is not None:
+        move_eval = " "+" ".join(move.evaluation)
+    return move.name + comment + move_eval
 
 
 def traversal_tree(move, fens, moves):

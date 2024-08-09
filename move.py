@@ -5,7 +5,8 @@ class Move:
     """this class is a chess Move"""
 
     def __init__(
-        self, name, fen, comments=None, parent=None, evaluation=None, main_variant=True
+        self, name, fen, comments=None, parent=None, evaluation=None, main_variant=True,
+        file_header =None
     ):
         self.name: str = name
         self.parent: Move | None = parent
@@ -14,6 +15,7 @@ class Move:
         self.evaluation: list[str] | None = evaluation
         self.children: list[Move] = []
         self.main_variant: bool = main_variant
+        self.file_header: str | None = file_header
 
     def __str__(self, com_fen=False, full_str=False) -> str:
         str_add = ""
