@@ -96,7 +96,6 @@ class Board:
         self.repertoire_loaded_moves: list[Move] = []
         self.player_color = "w"
         self.current_comments = []
-        self.new_moves: list[Move] = []
 
         self.board_position: float = base_length * self.board_spacing
         self.board_width: float = base_length * (1 - 2 * self.board_spacing)
@@ -301,9 +300,13 @@ class Board:
                         main_variant=len(self.repertoire_loaded_moves[-1].children)
                         == 0,
                     )
-                    self.new_moves.append(new_move)
                     self.repertoire_loaded_moves[-1].add_child(new_move)
                     self.repertoire_loaded_moves.append(new_move)
+                    traversal_tree(
+                        self.repertoire_loaded_moves[0],
+                        self.repertoire_fens,
+                        self.repertoire_moves,
+                    )
                     self.arrows = []
 
         self.master_window.update_canvas(None)
@@ -556,18 +559,17 @@ class Board:
             self.arrows.append(uci_move + main_var + str(move_idx))
         self.draw_arrows()
 
-    def take_back_last(self):
+    def take_back_last(self, delete_latest=False):
         self.white_to_play = not self.white_to_play
         self.chess_board.pop()
-        move_to_del = self.repertoire_loaded_moves.pop()
-        if move_to_del in self.new_moves and move_to_del.parent is not None:
-            move_to_del.parent.children.pop(
-                move_to_del.parent.children.index(move_to_del)
+        deleted_move = self.repertoire_loaded_moves.pop()
+        if deleted_move.parent is not None and delete_latest:
+            deleted_move.parent.children.pop(
+                deleted_move.parent.children.index(deleted_move)
             )
-        if self.repertoire_loaded_moves[-1] in self.repertoire_moves:
-            self.next_move(
-                self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b"
-            )
+        self.next_move(
+            self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b"
+        )
         self.current_comments = []
         self.master_window.update_canvas(None)
 
@@ -584,7 +586,6 @@ class Board:
         self.board_flipped = False
         self.current_comments = []
         self.master_window.update_canvas(None)
-        self.new_moves = []
 
     def flip_board(self):
         self.board_flipped = not self.board_flipped

@@ -150,6 +150,17 @@ class Background:
             command=partial(self.new_file_for_last_move),
         )
 
+        self.delete_move = Button(
+            self.canvas,
+            text="delete last move from repertoire",
+            width=15,
+            height=2,
+            font=("Arial", 10),
+            state="normal",
+            wraplength=100,
+            command=partial(self.delete_latest_move),
+        )
+
     def update(self, window: Tk, play_random, board_width, board_position):
         """Update the background width and height"""
 
@@ -175,6 +186,7 @@ class Background:
         self.move_eval_box.place(x=board_width + board_position + 225, y=board_width)
         self.move_eval_send.place(x=board_width + board_position + 300, y=board_width)
         self.new_file.place(x=board_width + board_position + 400, y=board_width)
+        self.delete_move.place(x=board_width + board_position + 500, y=board_width)
 
         if (
             len(self.master_window.board.repertoire_loaded_moves) > 0
@@ -258,3 +270,6 @@ class Background:
 
     def new_file_for_last_move(self):
         self.master_window.board.new_file_for_last_move()
+
+    def delete_latest_move(self):
+        self.master_window.board.take_back_last(True)
