@@ -239,6 +239,7 @@ def main(usecase):
         if b_or_w != "w" and b_or_w != "b":
             raise ValueError("The color argument is not b or w")
         repertoire_to_pgn(b_or_w)
+        print("repertoire exported to pgns!")
     else:
         raise ValueError("The argument you passed to the program is not known")
 

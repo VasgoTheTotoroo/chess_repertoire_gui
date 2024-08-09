@@ -192,7 +192,7 @@ def repertoire_to_pgn(b_or_w):
             file_name = "("+str(i+1)+")"+file_name+".pgn"
             print(file_name)
             write_pgn = open(directory_path + r"\pgns\\" + file_name, "w", encoding="utf-8")
-            write_pgn.write(child.file_header+"\n\n")
+            write_pgn.write(child.file_header[child.file_header.find("["):]+"\n\n")
             write_pgn.write(build_pgn_move(child)+" *\n\n")
             write_pgn.close()
 
