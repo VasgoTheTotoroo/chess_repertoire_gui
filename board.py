@@ -7,6 +7,7 @@ from tkinter import Tk, Canvas, Event
 import chess
 import PIL.Image
 import PIL.ImageTk
+from move import Move
 from utils import (
     build_fen_dict,
     find_all_children,
@@ -39,7 +40,7 @@ class Board:
     def __init__(
         self,
         tk_window: Tk,
-        base_length,
+        base_length: int,
         master_window,
         init_nb_rows: int = 8,
         init_board_spacing: float = 0.05,
@@ -53,17 +54,17 @@ class Board:
         self.white_color: str = "#FEFEE2"
         self.black_color: str = "#2F1E0E"
         self.master_window = master_window
-        self.arrows = []
-        self.board_flipped = False
-        self.board_flipped_offset = self.nb_rows - 1
+        self.arrows: list[str] = []
+        self.board_flipped: bool = False
+        self.board_flipped_offset: int = self.nb_rows - 1
 
-        self.white_to_play = True
+        self.white_to_play: bool = True
         self.chess_board = chess.Board()
         self.play_random = False
         self.repertoire_fens = []
         self.repertoire_moves = []
         self.transposition_dict = {}
-        self.repertoire_loaded_moves = []
+        self.repertoire_loaded_moves: list[Move] = []
         self.player_color = "w"
         self.current_comments = []
 
@@ -219,11 +220,16 @@ class Board:
     def drop_piece(self, event: Event, init_coord: tuple[int, int], is_white):
         """Drop the piece in the new square"""
 
+        self.canvas.unbind("<B1-Motion>")
+        self.canvas.unbind("<ButtonRelease-1>")
         base_length: float = self.board_width / self.nb_rows
         new_piece_x_coord: int = int(event.x / base_length)
         new_piece_y_coord: int = int(event.y / base_length)
         # update the board, h8 is 7 0
         old_square = file_dict[init_coord[0]] + rank_dict[init_coord[1]]
+        if new_piece_x_coord not in file_dict or new_piece_y_coord not in rank_dict:
+            self.master_window.update_canvas(None)
+            return
         new_square = file_dict[new_piece_x_coord] + rank_dict[new_piece_y_coord]
         if self.board_flipped:
             old_square = (
@@ -257,10 +263,8 @@ class Board:
                 except ValueError:
                     # self.repertoire_fens.index() raise a value error
                     # We don't find the fen in the list
-                    pass
+                    self.arrows = []
 
-        self.canvas.unbind("<B1-Motion>")
-        self.canvas.unbind("<ButtonRelease-1>")
         self.master_window.update_canvas(None)
 
     def draw(
@@ -514,8 +518,11 @@ class Board:
 
     def take_back_last(self):
         self.white_to_play = not self.white_to_play
-        self.chess_board.pop()
-        if len(self.repertoire_loaded_moves) > 0:
+        m = self.chess_board.pop()
+        if (len(self.repertoire_loaded_moves) > 1
+            and self.repertoire_loaded_moves[-1].name[
+                self.repertoire_loaded_moves[-1].name.find(" ")+1:]
+            == self.chess_board.san(m)):
             self.repertoire_loaded_moves.pop()
             self.next_move(
                 self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b"
