@@ -145,7 +145,10 @@ def read_and_build_tree():
                     temp_pgn = open(full_path_file + "_temp.pgn", encoding="utf-8")
                     fen_pgn = temp_pgn.read()
                     temp_pgn.close()
-                    file_header = fen_pgn[0:fen_pgn.find("\n\n")]
+                    header_file = open(full_path_file, encoding="utf-8")
+                    header_pgn = header_file.read()
+                    header_file.close()
+                    file_header = header_pgn[0:header_pgn.find("\n\n")]
                     fen_pgn = fen_pgn.replace("\n", " ")
                     fen_pgn = re.sub(
                         r"\( \d+\.",
@@ -179,17 +182,19 @@ def repertoire_to_pgn(b_or_w):
     for i, child in enumerate(fake_move.children):
         if child.file_header:
             white_idx = child.file_header.find("White ")
+            black_idx = child.file_header.find("Black ")
             if child.file_header[white_idx+7] != "?":
                 file_name = child.file_header[white_idx+7:child.file_header.find("\"", white_idx+7)]
-            else:
-                black_idx = child.file_header.find("Black ")
+            elif child.file_header[black_idx+7] != "?":
                 file_name = child.file_header[black_idx+7:child.file_header.find("\"", black_idx+7)]
-            file_name = "("+str(i)+")"+ file_name+".pgn"
+            else:
+                raise ValueError("There is a problem with the file header:\n"+child.file_header)
+            file_name = "("+str(i+1)+")"+file_name+".pgn"
             print(file_name)
             write_pgn = open(directory_path + r"\pgns\\" + file_name, "w", encoding="utf-8")
             write_pgn.write(child.file_header+"\n\n")
-        write_pgn.write(build_pgn_move(child)+" *\n\n")
-        write_pgn.close()
+            write_pgn.write(build_pgn_move(child)+" *\n\n")
+            write_pgn.close()
 
 def build_pgn_move(move: Move | None, only_children = False) -> str:
     if move is None:
