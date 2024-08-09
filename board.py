@@ -604,3 +604,49 @@ class Board:
                     reversed_eval_dict[move_eval]
                 ]
             self.master_window.update_canvas(None)
+
+    def new_file_for_last_move(self):
+        if self.repertoire_loaded_moves[-1].parent is not None:
+            children_idx = self.repertoire_loaded_moves[-1].parent.children.index(
+                self.repertoire_loaded_moves[-1]
+            )
+            self.repertoire_loaded_moves[-1].parent.children.pop(children_idx)
+        new_path_moves = []
+        parent = self.repertoire_loaded_moves[-1]
+        while parent is not None and parent.name != "":
+            new_path_moves.insert(0, [parent.name, parent.fen, parent.comments])
+            parent = parent.parent
+
+        file_header = f"""
+[Event "?"]
+[Site "?"]
+[Date "?"]
+[Round "?"]
+[White "?"]
+[Black "{new_path_moves[-1][0]}"]
+[Result "*"]
+[Annotator "vassia"]"""
+
+        last_move_added = Move(
+            name=new_path_moves[0][0],
+            fen=new_path_moves[0][1],
+            comments=new_path_moves[0][2],
+            parent=self.repertoire_loaded_moves[0],
+            evaluation=None,
+            main_variant=True,
+            file_header=file_header,
+        )
+        self.repertoire_loaded_moves[0].add_child(last_move_added)
+        for move in new_path_moves[1:]:
+            print(move[0])
+            new_move_added = Move(
+                name=move[0],
+                fen=move[1],
+                comments=move[2],
+                parent=last_move_added,
+                evaluation=None,
+                main_variant=True,
+                file_header=None,
+            )
+            last_move_added.add_child(new_move_added)
+            last_move_added = new_move_added

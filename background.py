@@ -134,11 +134,20 @@ class Background:
         self.move_eval_send = Button(
             self.canvas,
             text="modify move evaluation",
-            width=8,
+            width=9,
             height=2,
             wraplength=100,
             font=("Arial", 10),
             command=partial(self.send_eval),
+        )
+        self.new_file = Button(
+            self.canvas,
+            text="move in a new file (to do after)",
+            width=9,
+            height=2,
+            wraplength=70,
+            font=("Arial", 10),
+            command=partial(self.new_file_for_last_move),
         )
 
     def update(self, window: Tk, play_random, board_width, board_position):
@@ -165,6 +174,7 @@ class Background:
         self.save_repertoire.place(x=board_width + board_position + 50, y=board_width)
         self.move_eval_box.place(x=board_width + board_position + 225, y=board_width)
         self.move_eval_send.place(x=board_width + board_position + 300, y=board_width)
+        self.new_file.place(x=board_width + board_position + 400, y=board_width)
 
         if (
             len(self.master_window.board.repertoire_loaded_moves) > 0
@@ -245,3 +255,6 @@ class Background:
         move_eval = self.move_eval_box.get(1.0, "end")
         self.master_window.board.modify_last_move_eval(move_eval[:-1])
         self.move_eval_box.delete(1.0, "end")
+
+    def new_file_for_last_move(self):
+        self.master_window.board.new_file_for_last_move()
