@@ -70,9 +70,9 @@ class Window:
         window_height: int = self.window.winfo_height()
 
         if window_width > window_height:
-            self.base_length: int = window_height
+            base_length: int = window_height
         else:
-            self.base_length: int = window_width
+            base_length: int = window_width
 
         self.background.update(
             window=self.window,
@@ -80,7 +80,7 @@ class Window:
             board_width=self.board.board_width,
             board_position=self.board.board_position,
         )
-        self.board.update(base_length=self.base_length)
+        self.board.update(base_length=base_length)
 
     def bind_events(self):
         """Bind the events to the fcts for the different canvas"""

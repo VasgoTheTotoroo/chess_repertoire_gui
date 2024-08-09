@@ -1,7 +1,7 @@
 """This module is the background of the window"""
 
 import os
-from tkinter import Button, Label, Tk, Canvas
+from tkinter import Button, Label, Tk, Canvas, Text
 from functools import partial
 import PIL.Image
 import PIL.ImageTk
@@ -58,7 +58,7 @@ class Background:
             font=("Arial", 10),
             command=partial(self.switch_to_white_repertoire),
         )
-        self.Black_button = Button(
+        self.black_button = Button(
             self.canvas,
             text="BLACK",
             width=15,
@@ -125,6 +125,21 @@ class Background:
             state="disabled",
             command=partial(self.save_to_repertoire),
         )
+        self.move_eval_box = Text(
+            self.canvas,
+            width=8,
+            height=2,
+            font=("Arial", 10),
+        )
+        self.move_eval_send = Button(
+            self.canvas,
+            text="modify move evaluation",
+            width=8,
+            height=2,
+            wraplength=100,
+            font=("Arial", 10),
+            command=partial(self.send_eval),
+        )
 
     def update(self, window: Tk, play_random, board_width, board_position):
         """Update the background width and height"""
@@ -140,13 +155,16 @@ class Background:
         )
 
         self.white_button.place(x=board_width + board_position + 225, y=board_position)
-        self.Black_button.place(x=board_width + board_position + 400, y=board_position)
+        self.black_button.place(x=board_width + board_position + 400, y=board_position)
         self.reset_button.place(x=board_width + board_position + 575, y=board_position)
         self.take_back_button.place(
             x=board_width + board_position + 750, y=board_position
         )
-        self.save_repertoire.place(x=board_width + board_position + 50, y=board_width)
         self.flip_button.place(x=board_width + board_position + 10, y=board_position)
+
+        self.save_repertoire.place(x=board_width + board_position + 50, y=board_width)
+        self.move_eval_box.place(x=board_width + board_position + 225, y=board_width)
+        self.move_eval_send.place(x=board_width + board_position + 300, y=board_width)
 
         if (
             len(self.master_window.board.repertoire_loaded_moves) > 0
@@ -156,7 +174,7 @@ class Background:
             font_color = "#000000"
             if last_move.evaluation:
                 for chess_eval in last_move.evaluation:
-                    if chess_eval in list(eval_color.keys()):
+                    if chess_eval in list(eval_color):
                         font_color = eval_color[chess_eval]
             if last_move.main_variant:
                 font = ("Arial", 10, "bold")
@@ -189,13 +207,13 @@ class Background:
             self.master_window.board.chess_board.fen()
             != "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         ):
-            self.Black_button["state"] = "disabled"
+            self.black_button["state"] = "disabled"
             self.white_button["state"] = "disabled"
 
             self.save_repertoire["state"] = "normal"
             self.take_back_button["state"] = "normal"
         else:
-            self.Black_button["state"] = "normal"
+            self.black_button["state"] = "normal"
             self.white_button["state"] = "normal"
 
             self.save_repertoire["state"] = "disabled"
@@ -222,3 +240,8 @@ class Background:
 
     def save_to_repertoire(self):
         self.master_window.board.save_to_repertoire()
+
+    def send_eval(self):
+        move_eval = self.move_eval_box.get(1.0, "end")
+        self.master_window.board.modify_last_move_eval(move_eval[:-1])
+        self.move_eval_box.delete(1.0, "end")

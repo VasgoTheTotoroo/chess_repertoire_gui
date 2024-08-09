@@ -25,6 +25,34 @@ rank_dict = {0: "8", 1: "7", 2: "6", 3: "5", 4: "4", 5: "3", 6: "2", 7: "1"}
 reversed_file_dict = {v: k for k, v in file_dict.items()}
 reversed_rank_dict = {v: k for k, v in rank_dict.items()}
 
+evaluation_dict = {
+    "$1": "!",
+    "$2": "?",
+    "$3": "!!",
+    "$4": "??",
+    "$5": "!?",
+    "$6": "?!",
+    "$8": "only move",
+    "$22": "Zugzwang",
+    "$16": "W advantage",
+    "$18": "+-",
+    "$11": "=",
+    "$13": "not clear",
+    "$15": "little B advantage",
+    "$17": "B advantage",
+    "$19": "-+",
+    "$44": "compensation",
+    "$40": "attack",
+    "$36": "initiative",
+    "$132": "counterplay",
+    "$138": "zeitnot",
+    "$32": "development advantage",
+    "$146": "N",
+    "$140": "with the idea",
+    "$14": "little W advantage",
+}
+reversed_eval_dict = {v: k for k, v in evaluation_dict.items()}
+
 eval_color = {
     "$1": "#749BBF",
     "$2": "#FFA459",
@@ -444,6 +472,7 @@ class Board:
         self.play_random = not self.play_random
 
     def choose_color(self, b_or_w):
+        self.reset_game()
         with open(
             os.path.join(
                 directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"
@@ -563,3 +592,15 @@ class Board:
 
     def save_to_repertoire(self):
         save_to_repertoire(self.player_color, self.repertoire_loaded_moves[0])
+
+    def modify_last_move_eval(self, move_eval: str):
+        if move_eval in reversed_eval_dict:
+            if self.repertoire_loaded_moves[-1].evaluation is not None:
+                self.repertoire_loaded_moves[-1].evaluation.append(
+                    reversed_eval_dict[move_eval]
+                )
+            else:
+                self.repertoire_loaded_moves[-1].evaluation = [
+                    reversed_eval_dict[move_eval]
+                ]
+            self.master_window.update_canvas(None)
