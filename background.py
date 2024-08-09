@@ -116,6 +116,15 @@ class Background:
                     font=("Arial", 10),
                 )
             )
+        self.save_repertoire = Button(
+            self.canvas,
+            text="save to repertoire",
+            width=15,
+            height=2,
+            font=("Arial", 10),
+            state="disabled",
+            command=partial(self.save_to_repertoire),
+        )
 
     def update(self, window: Tk, play_random, board_width, board_position):
         """Update the background width and height"""
@@ -136,6 +145,7 @@ class Background:
         self.take_back_button.place(
             x=board_width + board_position + 750, y=board_position
         )
+        self.save_repertoire.place(x=board_width + board_position + 50, y=board_width)
         self.flip_button.place(x=board_width + board_position + 10, y=board_position)
 
         if (
@@ -181,10 +191,14 @@ class Background:
         ):
             self.Black_button["state"] = "disabled"
             self.white_button["state"] = "disabled"
+
+            self.save_repertoire["state"] = "normal"
             self.take_back_button["state"] = "normal"
         else:
             self.Black_button["state"] = "normal"
             self.white_button["state"] = "normal"
+
+            self.save_repertoire["state"] = "disabled"
             self.take_back_button["state"] = "disabled"
 
     def switch_random(self):
@@ -205,3 +219,6 @@ class Background:
 
     def flip_board(self):
         self.master_window.board.flip_board()
+
+    def save_to_repertoire(self):
+        self.master_window.board.save_to_repertoire()

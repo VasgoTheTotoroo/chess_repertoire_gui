@@ -14,6 +14,7 @@ from utils import (
     is_not_a_bad_move,
     move_full_print,
     traversal_tree,
+    save_to_repertoire,
 )
 
 directory_path = os.path.abspath(os.path.dirname(__file__))
@@ -67,6 +68,7 @@ class Board:
         self.repertoire_loaded_moves: list[Move] = []
         self.player_color = "w"
         self.current_comments = []
+        self.new_moves: list[Move] = []
 
         self.board_position: float = base_length * self.board_spacing
         self.board_width: float = base_length * (1 - 2 * self.board_spacing)
@@ -245,7 +247,8 @@ class Board:
             old_square.find(new_square) == -1
             and chess.Move.from_uci(uci_move) in self.chess_board.legal_moves
         ):
-            self.chess_board.push_uci(uci_move)
+            points = ". " if self.white_to_play else "... "
+            new_move_san = f"{self.chess_board.fullmove_number}{points}{self.chess_board.san_and_push(chess.Move.from_uci(uci_move))}"
             self.white_to_play = not self.white_to_play
             if len(self.repertoire_loaded_moves) > 0:
                 try:
@@ -262,7 +265,17 @@ class Board:
                     )
                 except ValueError:
                     # self.repertoire_fens.index() raise a value error
-                    # We don't find the fen in the list
+                    # We don't find the fen in the list, it's a new move
+                    new_move = Move(
+                        name=new_move_san,
+                        fen=self.chess_board.fen(),
+                        parent=self.repertoire_loaded_moves[-1],
+                        main_variant=len(self.repertoire_loaded_moves[-1].children)
+                        == 0,
+                    )
+                    self.new_moves.append(new_move)
+                    self.repertoire_loaded_moves[-1].add_child(new_move)
+                    self.repertoire_loaded_moves.append(new_move)
                     self.arrows = []
 
         self.master_window.update_canvas(None)
@@ -509,25 +522,24 @@ class Board:
                     if self.repertoire_moves[concurent_move_idx].name == c.name:
                         move_idx = concurent_move_idx
                         break
-            uci_move = self.chess_board.parse_san(
-                c.name[c.name.find(" ") + 1 :]
-            ).__str__()
+            uci_move = str(self.chess_board.parse_san(c.name[c.name.find(" ") + 1 :]))
             main_var = "1" if c.main_variant else "0"
             self.arrows.append(uci_move + main_var + str(move_idx))
         self.draw_arrows()
 
     def take_back_last(self):
         self.white_to_play = not self.white_to_play
-        m = self.chess_board.pop()
-        if (len(self.repertoire_loaded_moves) > 1
-            and self.repertoire_loaded_moves[-1].name[
-                self.repertoire_loaded_moves[-1].name.find(" ")+1:]
-            == self.chess_board.san(m)):
-            self.repertoire_loaded_moves.pop()
+        self.chess_board.pop()
+        move_to_del = self.repertoire_loaded_moves.pop()
+        if move_to_del in self.new_moves and move_to_del.parent is not None:
+            move_to_del.parent.children.pop(
+                move_to_del.parent.children.index(move_to_del)
+            )
+        if self.repertoire_loaded_moves[-1] in self.repertoire_moves:
             self.next_move(
                 self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b"
             )
-            self.current_comments = []
+        self.current_comments = []
         self.master_window.update_canvas(None)
 
     def reset_game(self):
@@ -543,7 +555,11 @@ class Board:
         self.board_flipped = False
         self.current_comments = []
         self.master_window.update_canvas(None)
+        self.new_moves = []
 
     def flip_board(self):
         self.board_flipped = not self.board_flipped
         self.master_window.update_canvas(None)
+
+    def save_to_repertoire(self):
+        save_to_repertoire(self.player_color, self.repertoire_loaded_moves[0])

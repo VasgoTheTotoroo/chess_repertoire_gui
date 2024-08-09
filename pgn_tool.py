@@ -1,5 +1,7 @@
+"""This module is the main module of the project.
+It implements the main loop of the game and the CLI usage"""
+
 import os
-import pickle
 import re
 import subprocess
 import sys
@@ -16,11 +18,14 @@ from utils import (
     read_and_build_tree,
     remove_temp_pgn,
     repertoire_to_pgn,
+    save_to_repertoire,
     traversal_tree,
 )
 
 
 def main(usecase):
+    """Main method of the program, start the game and implements the CLI usages"""
+
     directory_path = os.path.abspath(os.path.dirname(__file__))
     is_french = locale.getlocale()[0] == "fr_FR"
 
@@ -32,11 +37,11 @@ def main(usecase):
         moves = []
         traversal_tree(fake_move, fens, moves)
 
-        D = build_fen_dict(fens)
-        D = list(D.values())
+        transposition_dict = build_fen_dict(fens)
+        transposition_dict = list(transposition_dict.values())
 
         true_duplicates = []
-        for d in D:
+        for d in transposition_dict:
             nb_comments = 0
             for idx in d:
                 if moves[idx].comments is not None:
@@ -87,14 +92,14 @@ def main(usecase):
         moves = []
         traversal_tree(fake_move, fens, moves)
 
-        D = build_fen_dict(fens)
+        transposition_dict = build_fen_dict(fens)
 
         color = sys.argv[2]
         if color != "w" and color != "b":
             raise ValueError("The color argument is not b or w")
         deviation = 1
         for idx, fen in enumerate(fens):
-            all_children = find_all_children(D, fen, moves, idx, True)
+            all_children = find_all_children(transposition_dict, fen, moves, idx, True)
             if (
                 len(fen) > 0
                 and len(list(filter(is_not_a_bad_move, all_children))) > 1
@@ -117,7 +122,8 @@ def main(usecase):
     elif usecase == "split_pgn":
         if len(sys.argv) < 3:
             raise ValueError(
-                "You need to provide a file name argument for split_pgn. The file need to be in the pgn subdirectory"
+                """You need to provide a file name argument for split_pgn. 
+                The file need to be in the pgn subdirectory"""
             )
         file_name = sys.argv[2]
         file = open(directory_path + r"\pgns\\" + file_name, encoding="utf-8")
@@ -153,22 +159,16 @@ def main(usecase):
 
     # save your pgns to a repertoire file
     elif usecase == "save_to_repertoire":
-        fake_move = read_and_build_tree()
         if len(sys.argv) < 3:
             raise ValueError(
-                "You need to provide a color argument for save_to_repertoire. The file will be then saved under \repertoire\\[w/b].repertoire.pickle"
+                """You need to provide a color argument for save_to_repertoire. 
+                The file will be then saved under \repertoire\\[w/b].repertoire.pickle"""
             )
         b_or_w = sys.argv[2]
         if b_or_w != "w" and b_or_w != "b":
             raise ValueError("The color argument is not b or w")
-        with open(
-            os.path.join(
-                directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"
-            ),
-            "wb",
-        ) as handle:
-            pickle.dump(fake_move, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        print("repertoire saved!")
+        fake_move = read_and_build_tree()
+        save_to_repertoire(b_or_w, fake_move)
 
     # Fill opening names into your pgns
     elif usecase == "fill_opening_names":
@@ -233,7 +233,8 @@ def main(usecase):
     elif usecase == "export_repertoire":
         if len(sys.argv) < 3:
             raise ValueError(
-                "You need to provide a color argument for export_repertoire. The file will be then saved under \\pgns"
+                """You need to provide a color argument for export_repertoire. 
+                The file will be then saved under \\pgns"""
             )
         b_or_w = sys.argv[2]
         if b_or_w != "w" and b_or_w != "b":

@@ -117,7 +117,7 @@ def construct_tree(move, pgn, nb, file_header):
                 else None
             ),
             main_variant=True,
-            file_header=file_header if pgn[0:3] == "1. " else None
+            file_header=file_header if pgn[0:3] == "1. " else None,
         )
         Move.add_child(move, new_move)
         nb.pop(0)
@@ -148,7 +148,7 @@ def read_and_build_tree():
                     header_file = open(full_path_file, encoding="utf-8")
                     header_pgn = header_file.read()
                     header_file.close()
-                    file_header = header_pgn[0:header_pgn.find("\n\n")]
+                    file_header = header_pgn[0 : header_pgn.find("\n\n")]
                     fen_pgn = fen_pgn.replace("\n", " ")
                     fen_pgn = re.sub(
                         r"\( \d+\.",
@@ -173,44 +173,51 @@ def read_and_build_tree():
 
 def repertoire_to_pgn(b_or_w):
     with open(
-            os.path.join(
-                directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"
-            ),
-            "rb",
-        ) as handle:
+        os.path.join(directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"),
+        "rb",
+    ) as handle:
         fake_move: Move = pickle.load(handle)
     for i, child in enumerate(fake_move.children):
         if child.file_header:
             white_idx = child.file_header.find("White ")
             black_idx = child.file_header.find("Black ")
-            if child.file_header[white_idx+7] != "?":
-                file_name = child.file_header[white_idx+7:child.file_header.find("\"", white_idx+7)]
-            elif child.file_header[black_idx+7] != "?":
-                file_name = child.file_header[black_idx+7:child.file_header.find("\"", black_idx+7)]
+            if child.file_header[white_idx + 7] != "?":
+                file_name = child.file_header[
+                    white_idx + 7 : child.file_header.find('"', white_idx + 7)
+                ]
+            elif child.file_header[black_idx + 7] != "?":
+                file_name = child.file_header[
+                    black_idx + 7 : child.file_header.find('"', black_idx + 7)
+                ]
             else:
-                raise ValueError("There is a problem with the file header:\n"+child.file_header)
-            file_name = "("+str(i+1)+")"+file_name+".pgn"
+                raise ValueError(
+                    "There is a problem with the file header:\n" + child.file_header
+                )
+            file_name = "(" + str(i + 1) + ")" + file_name + ".pgn"
             print(file_name)
-            write_pgn = open(directory_path + r"\pgns\\" + file_name, "w", encoding="utf-8")
-            write_pgn.write(child.file_header[child.file_header.find("["):]+"\n\n")
-            write_pgn.write(build_pgn_move(child)+" *\n\n")
+            write_pgn = open(
+                directory_path + r"\pgns\\" + file_name, "w", encoding="utf-8"
+            )
+            write_pgn.write(child.file_header[child.file_header.find("[") :] + "\n\n")
+            write_pgn.write(build_pgn_move(child) + " *\n\n")
             write_pgn.close()
 
-def build_pgn_move(move: Move | None, only_children = False) -> str:
+
+def build_pgn_move(move: Move | None, only_children=False) -> str:
     if move is None:
         return ""
     if only_children:
-        move_str=""
+        move_str = ""
     else:
         move_str = build_move_unitary(move)
     if move.children:
         move.children.sort(key=lambda c: int(not c.main_variant))
-        move_str+=" "+build_move_unitary(move.children[0])
+        move_str += " " + build_move_unitary(move.children[0])
         for c in move.children[1:]:
-            move_str+=" ("
-            move_str+=build_pgn_move(c)
-            move_str+=")"
-        move_str+= build_pgn_move(move.children[0], True)
+            move_str += " ("
+            move_str += build_pgn_move(c)
+            move_str += ")"
+        move_str += build_pgn_move(move.children[0], True)
     else:
         return move_str
     return move_str
@@ -219,10 +226,10 @@ def build_pgn_move(move: Move | None, only_children = False) -> str:
 def build_move_unitary(move: Move):
     comment = ""
     if move.comments is not None:
-        comment = " {"+move.comments+"}"
+        comment = " {" + move.comments + "}"
     move_eval = ""
     if move.evaluation is not None:
-        move_eval = " "+" ".join(move.evaluation)
+        move_eval = " " + " ".join(move.evaluation)
     return move.name + comment + move_eval
 
 
@@ -279,10 +286,10 @@ def find_all_children(
 
 
 def build_fen_dict(fens):
-    D = defaultdict(list)
+    transposition_dict = defaultdict(list)
     for i, item in enumerate(fens):
-        D[item].append(i)
-    return {k: v for k, v in D.items() if len(v) > 1}
+        transposition_dict[item].append(i)
+    return {k: v for k, v in transposition_dict.items() if len(v) > 1}
 
 
 def pgn_to_evaluation(evaluation):
@@ -309,3 +316,12 @@ def move_full_print(move):
         + (" " + pgn_to_evaluation(move.evaluation) if move.evaluation else "")
         + (" " + move.comments if move.comments else "")
     )
+
+
+def save_to_repertoire(b_or_w, fake_move):
+    with open(
+        os.path.join(directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"),
+        "wb",
+    ) as handle:
+        pickle.dump(fake_move, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    print("repertoire saved!")
