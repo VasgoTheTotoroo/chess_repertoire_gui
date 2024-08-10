@@ -61,7 +61,7 @@ class Window:
             + str(init_y)
         )
         self.window.title("Chess")
-        self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
+        self.window.protocol("WM_DELETE_WINDOW", self.destroy_window)
 
     def update_canvas(self, _):
         """Update all the canvas when the window is resizing"""
@@ -87,3 +87,8 @@ class Window:
 
         self.window.bind("<Configure>", self.update_canvas)
         self.board.bind()
+
+    def destroy_window(self):
+        if self.board.stockfish_sub_process is not None:
+            self.board.stockfish_sub_process.kill()
+        self.window.destroy()

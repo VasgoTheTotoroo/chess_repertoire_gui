@@ -3,10 +3,9 @@
 import os
 import pickle
 import random
+import subprocess
 from tkinter import Tk, Canvas, Event
-import re
 import chess
-import chess.engine
 import PIL.Image
 import PIL.ImageTk
 from move import Move
@@ -98,6 +97,7 @@ class Board:
         self.repertoire_loaded_moves: list[Move] = []
         self.player_color = "w"
         self.current_comments = []
+        self.stockfish_sub_process = None
 
         self.board_position: float = base_length * self.board_spacing
         self.board_width: float = base_length * (1 - 2 * self.board_spacing)
@@ -279,6 +279,9 @@ class Board:
             points = ". " if self.white_to_play else "... "
             new_move_san = f"{self.chess_board.fullmove_number}{points}{self.chess_board.san_and_push(chess.Move.from_uci(uci_move))}"
             self.white_to_play = not self.white_to_play
+            if self.stockfish_sub_process is not None:
+                self.switch_stockfish()
+                self.switch_stockfish()
             if len(self.repertoire_loaded_moves) > 0:
                 try:
                     fen_idx = self.repertoire_fens.index(
@@ -385,7 +388,7 @@ class Board:
                 x_0: float = x_idx * base_length
                 y_0: float = y_idx * base_length
                 piece_to_draw = (
-                    self.chess_board.__str__()
+                    str(self.chess_board)
                     .replace(" ", "")
                     .replace("\n", "")[(j * self.nb_rows) + i]
                 )
@@ -574,6 +577,9 @@ class Board:
         )
         self.current_comments = []
         self.master_window.update_canvas(None)
+        if self.stockfish_sub_process is not None:
+            self.switch_stockfish()
+            self.switch_stockfish()
 
     def reset_game(self):
         self.white_to_play = True
@@ -587,6 +593,8 @@ class Board:
         self.player_color = "w"
         self.board_flipped = False
         self.current_comments = []
+        if self.stockfish_sub_process is not None:
+            self.master_window.background.compute_stockfish_score()
         self.master_window.update_canvas(None)
 
     def flip_board(self):
@@ -654,23 +662,17 @@ class Board:
             last_move_added.add_child(new_move_added)
             last_move_added = new_move_added
 
-    def get_position_score(self):
-        engine = chess.engine.SimpleEngine.popen_uci(
-            r"c:\Users\Vassia\Desktop\echec\stockfish\stockfish-windows-x86-64.exe"
-        )
-        engine.configure({"Threads": 12})
-        engine.configure({"Hash": 33554})
-        infos = engine.analyse(
-            board=self.chess_board, multipv=4, limit=chess.engine.Limit(depth=20)
-        )
-        engine.close()
-        moves_score_str = ""
-        for info in infos:
-            variation = self.chess_board.variation_san(info.get("pv")[:30])  # type: ignore
-            variation = re.sub(r"\.\ ", ".", variation)
-            moves_score_str += (
-                str(info.get("score").white().score(mate_score=300) / 100) + " /"  # type: ignore
+    def switch_stockfish(self):
+        if self.stockfish_sub_process is not None:
+            self.stockfish_sub_process.kill()
+            self.stockfish_sub_process = None
+        else:
+            p = subprocess.Popen(
+                args=[
+                    "python",
+                    directory_path + r"\stockfish.py",
+                    self.chess_board.fen(),
+                ],
+                stdout=subprocess.PIPE,
             )
-            moves_score_str += variation
-            moves_score_str += "\n"
-        return moves_score_str
+            self.stockfish_sub_process = p

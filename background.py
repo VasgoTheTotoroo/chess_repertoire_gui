@@ -41,6 +41,7 @@ class Background:
         self.canvas.place(x=0, y=0)
         self.base_length = base_length
         self.master_window = master_window
+        self.stockfish_reload_id = ""
         self.random_move_btn = Button(
             self.canvas,
             text="RANDOM is " + str(False),
@@ -165,20 +166,21 @@ class Background:
             self.canvas,
             text="",
             bd=0,
-            wraplength=900,
+            wraplength=870,
             width=110,
-            height=8,
+            height=10,
             font=("Arial", 10),
         )
 
         self.compute_stockfish = Button(
             self.canvas,
-            text="compute stockfish",
+            text="stockfish is OFF",
             width=15,
             height=2,
             font=("Arial", 10),
             state="normal",
-            wraplength=100,
+            wraplength=150,
+            fg="#eb4034",
             command=partial(self.compute_stockfish_score),
         )
 
@@ -188,7 +190,7 @@ class Background:
         self.canvas.config(width=window.winfo_width(), height=window.winfo_height())
 
         self.random_move_btn.config(
-            text="RANDOM is " + str(play_random),
+            text="RANDOM is " + ("OFF" if not play_random else "ON"),
             fg="#eb4034" if not play_random else "#34eb77",
         )
         self.random_move_btn.place(
@@ -212,7 +214,8 @@ class Background:
             x=board_width + board_position + 650, y=board_width
         )
 
-        self.stockfish.place(x=board_width + board_position + 50, y=board_width - 140)
+        if self.master_window.board.stockfish_sub_process is None:
+            self.stockfish.place_forget()
 
         if (
             len(self.master_window.board.repertoire_loaded_moves) > 0
@@ -301,5 +304,37 @@ class Background:
         self.master_window.board.take_back_last(True)
 
     def compute_stockfish_score(self):
-        score = self.master_window.board.get_position_score()
-        self.stockfish.config(text=score)
+        self.master_window.board.switch_stockfish()
+        self.compute_stockfish.config(
+            text="stockfish is "
+            + (
+                "OFF"
+                if self.master_window.board.stockfish_sub_process is None
+                else "ON"
+            ),
+            fg=(
+                "#eb4034"
+                if self.master_window.board.stockfish_sub_process is None
+                else "#34eb77"
+            ),
+        )
+        if self.master_window.board.stockfish_sub_process is None:
+            self.master_window.window.after_cancel(self.stockfish_reload_id)
+            self.stockfish.place_forget()
+        else:
+            self.stockfish.place(
+                x=self.master_window.board.board_width
+                + self.master_window.board.board_position
+                + 50,
+                y=self.master_window.board.board_width - 180,
+            )
+            self.refresh_stockfish()
+
+    def refresh_stockfish(self):
+        sf_log = open(directory_path + r"\stockfish.txt", "r", encoding="utf-8")
+        stockfish_text = sf_log.read()
+        sf_log.close()
+        self.stockfish.config(text=stockfish_text)
+        self.stockfish_reload_id = self.master_window.window.after(
+            20, self.refresh_stockfish
+        )
