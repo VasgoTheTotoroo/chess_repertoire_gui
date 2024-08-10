@@ -92,8 +92,8 @@ class Board:
         self.chess_board = chess.Board()
         self.play_random = False
         self.repertoire_fens = []
-        self.repertoire_moves = []
-        self.transposition_dict = {}
+        self.repertoire_moves: list[Move] = []
+        self.transposition_dict: dict[str, list[int]] = {}
         self.repertoire_loaded_moves: list[Move] = []
         self.player_color = "w"
         self.current_comments = []
@@ -283,35 +283,54 @@ class Board:
                 self.switch_stockfish()
                 self.switch_stockfish()
             if len(self.repertoire_loaded_moves) > 0:
-                try:
-                    fen_idx = self.repertoire_fens.index(
-                        self.chess_board.fen()[
-                            : self.chess_board.fen().find(
-                                " ", self.chess_board.fen().find(" ") + 1
-                            )
-                        ]
+                truncated_fen = self.chess_board.fen()[
+                    : self.chess_board.fen().find(
+                        " ", self.chess_board.fen().find(" ") + 1
                     )
+                ]
+                if truncated_fen in self.repertoire_fens:
+                    fen_idx = self.repertoire_fens.index(truncated_fen)
                     self.repertoire_loaded_moves.append(self.repertoire_moves[fen_idx])
                     self.next_move(
                         self.repertoire_moves[fen_idx], "b" if is_white else "w"
                     )
-                except ValueError:
-                    # self.repertoire_fens.index() raise a value error
+                else:
                     # We don't find the fen in the list, it's a new move
+                    parent_truncated_fen = self.repertoire_loaded_moves[-1].fen[
+                        : self.repertoire_loaded_moves[-1].fen.find(
+                            " ", self.repertoire_loaded_moves[-1].fen.find(" ") + 1
+                        )
+                    ]
+                    parent = self.repertoire_loaded_moves[-1]
+                    if parent_truncated_fen in self.transposition_dict:
+                        # /!\ we have more than one move that transpose to this ie => more than 1 parent possible
+                        for move_idx in self.transposition_dict[parent_truncated_fen]:
+                            if (
+                                self.repertoire_moves[move_idx].comments is None
+                                or self.repertoire_moves[move_idx].comments.find(  # type: ignore
+                                    "Transposition"
+                                )
+                                == -1
+                            ):
+                                parent = self.repertoire_moves[move_idx]
+                                print(parent)
+                                break
                     new_move = Move(
                         name=new_move_san,
                         fen=self.chess_board.fen(),
-                        parent=self.repertoire_loaded_moves[-1],
-                        main_variant=len(self.repertoire_loaded_moves[-1].children)
-                        == 0,
+                        parent=parent,
+                        main_variant=len(parent.children) == 0,
                     )
-                    self.repertoire_loaded_moves[-1].add_child(new_move)
+                    parent.add_child(new_move)
                     self.repertoire_loaded_moves.append(new_move)
+                    self.repertoire_fens = []
+                    self.repertoire_moves = []
                     traversal_tree(
                         self.repertoire_loaded_moves[0],
                         self.repertoire_fens,
                         self.repertoire_moves,
                     )
+                    self.transposition_dict = build_fen_dict(self.repertoire_fens)
                     self.arrows = []
 
         self.master_window.update_canvas(None)
@@ -572,6 +591,14 @@ class Board:
             deleted_move.parent.children.pop(
                 deleted_move.parent.children.index(deleted_move)
             )
+            self.repertoire_fens = []
+            self.repertoire_moves = []
+            traversal_tree(
+                self.repertoire_loaded_moves[0],
+                self.repertoire_fens,
+                self.repertoire_moves,
+            )
+            self.transposition_dict = build_fen_dict(self.repertoire_fens)
         self.next_move(
             self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b"
         )

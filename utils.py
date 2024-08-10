@@ -233,7 +233,7 @@ def build_move_unitary(move: Move):
     return move.name + comment + move_eval
 
 
-def traversal_tree(move, fens, moves):
+def traversal_tree(move: Move, fens: list[str], moves: list[Move]):
     if move is not None:
         # get the fen with the color but without the move order, castle, etc. to find transposition
         fens.append(move.fen[: move.fen.find(" ", move.fen.find(" ") + 1)])
