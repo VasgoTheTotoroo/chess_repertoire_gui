@@ -4,7 +4,9 @@ import os
 import pickle
 import random
 from tkinter import Tk, Canvas, Event
+import re
 import chess
+import chess.engine
 import PIL.Image
 import PIL.ImageTk
 from move import Move
@@ -651,3 +653,24 @@ class Board:
             )
             last_move_added.add_child(new_move_added)
             last_move_added = new_move_added
+
+    def get_position_score(self):
+        engine = chess.engine.SimpleEngine.popen_uci(
+            r"c:\Users\Vassia\Desktop\echec\stockfish\stockfish-windows-x86-64.exe"
+        )
+        engine.configure({"Threads": 12})
+        engine.configure({"Hash": 33554})
+        infos = engine.analyse(
+            board=self.chess_board, multipv=4, limit=chess.engine.Limit(depth=20)
+        )
+        engine.close()
+        moves_score_str = ""
+        for info in infos:
+            variation = self.chess_board.variation_san(info.get("pv")[:30])  # type: ignore
+            variation = re.sub(r"\.\ ", ".", variation)
+            moves_score_str += (
+                str(info.get("score").white().score(mate_score=300) / 100) + " /"  # type: ignore
+            )
+            moves_score_str += variation
+            moves_score_str += "\n"
+        return moves_score_str

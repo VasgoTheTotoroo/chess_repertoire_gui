@@ -161,6 +161,27 @@ class Background:
             command=partial(self.delete_latest_move),
         )
 
+        self.stockfish = Label(
+            self.canvas,
+            text="",
+            bd=0,
+            wraplength=800,
+            width=110,
+            height=8,
+            font=("Arial", 10),
+        )
+
+        self.compute_stockfish = Button(
+            self.canvas,
+            text="compute stockfish",
+            width=15,
+            height=2,
+            font=("Arial", 10),
+            state="normal",
+            wraplength=100,
+            command=partial(self.compute_stockfish_score),
+        )
+
     def update(self, window: Tk, play_random, board_width, board_position):
         """Update the background width and height"""
 
@@ -187,6 +208,11 @@ class Background:
         self.move_eval_send.place(x=board_width + board_position + 300, y=board_width)
         self.new_file.place(x=board_width + board_position + 400, y=board_width)
         self.delete_move.place(x=board_width + board_position + 500, y=board_width)
+        self.compute_stockfish.place(
+            x=board_width + board_position + 650, y=board_width
+        )
+
+        self.stockfish.place(x=board_width + board_position + 50, y=board_width - 140)
 
         if (
             len(self.master_window.board.repertoire_loaded_moves) > 0
@@ -273,3 +299,7 @@ class Background:
 
     def delete_latest_move(self):
         self.master_window.board.take_back_last(True)
+
+    def compute_stockfish_score(self):
+        score = self.master_window.board.get_position_score()
+        self.stockfish.config(text=score)
