@@ -280,7 +280,7 @@ class Board:
             new_move_san = f"{self.chess_board.fullmove_number}{points}{self.chess_board.san_and_push(chess.Move.from_uci(uci_move))}"
             self.white_to_play = not self.white_to_play
             if self.stockfish_sub_process is not None:
-                self.switch_stockfish()
+                self.kill_stockfish_sub_process(self.stockfish_sub_process)
                 self.switch_stockfish()
             if len(self.repertoire_loaded_moves) > 0:
                 truncated_fen = self.chess_board.fen()[
@@ -290,7 +290,11 @@ class Board:
                 ]
                 if truncated_fen in self.repertoire_fens:
                     fen_idx = self.repertoire_fens.index(truncated_fen)
-                    indices = [i for i, x in enumerate(self.repertoire_fens) if x == truncated_fen]
+                    indices = [
+                        i
+                        for i, x in enumerate(self.repertoire_fens)
+                        if x == truncated_fen
+                    ]
                     if len(indices) > 1:
                         for move_idx in indices:
                             if self.repertoire_moves[move_idx].name == new_move_san:
@@ -611,7 +615,7 @@ class Board:
         self.current_comments = []
         self.master_window.update_canvas(None)
         if self.stockfish_sub_process is not None:
-            self.switch_stockfish()
+            self.kill_stockfish_sub_process(self.stockfish_sub_process)
             self.switch_stockfish()
 
     def reset_game(self):
@@ -697,15 +701,17 @@ class Board:
 
     def switch_stockfish(self):
         if self.stockfish_sub_process is not None:
-            self.stockfish_sub_process.kill()
-            self.stockfish_sub_process = None
+            self.kill_stockfish_sub_process(self.stockfish_sub_process)
         else:
             p = subprocess.Popen(
                 args=[
                     "python",
                     directory_path + r"\stockfish.py",
                     self.chess_board.fen(),
-                ],
-                stdout=subprocess.PIPE,
+                ]
             )
             self.stockfish_sub_process = p
+
+    def kill_stockfish_sub_process(self, sub_process: subprocess.Popen):
+        sub_process.kill()
+        self.stockfish_sub_process = None
