@@ -323,7 +323,6 @@ class Board:
                                 == -1
                             ):
                                 parent = self.repertoire_moves[move_idx]
-                                print(parent)
                                 break
                     new_move = Move(
                         name=new_move_san,
@@ -686,7 +685,6 @@ class Board:
         )
         self.repertoire_loaded_moves[0].add_child(last_move_added)
         for move in new_path_moves[1:]:
-            print(move[0])
             new_move_added = Move(
                 name=move[0],
                 fen=move[1],

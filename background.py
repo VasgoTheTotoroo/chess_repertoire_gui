@@ -5,6 +5,8 @@ from tkinter import Button, Label, Tk, Canvas, Text
 from functools import partial
 import PIL.Image
 import PIL.ImageTk
+import chess
+import pyperclip
 
 from utils import move_full_print
 
@@ -184,6 +186,17 @@ class Background:
             command=partial(self.compute_stockfish_score),
         )
 
+        self.export_pgn = Button(
+            self.canvas,
+            text="export PGN",
+            width=10,
+            height=2,
+            font=("Arial", 10),
+            state="normal",
+            wraplength=150,
+            command=partial(self.export_pgn_from_board),
+        )
+
     def update(self, window: Tk, play_random, board_width, board_position):
         """Update the background width and height"""
 
@@ -213,6 +226,7 @@ class Background:
         self.compute_stockfish.place(
             x=board_width + board_position + 650, y=board_width
         )
+        self.export_pgn.place(x=board_width + board_position + 800, y=board_width)
 
         if self.master_window.board.stockfish_sub_process is None:
             self.stockfish.place_forget()
@@ -338,3 +352,9 @@ class Background:
         self.stockfish_reload_id = self.master_window.window.after(
             20, self.refresh_stockfish
         )
+
+    def export_pgn_from_board(self):
+        text = chess.Board().variation_san(
+            self.master_window.board.chess_board.move_stack
+        )
+        pyperclip.copy(text)
