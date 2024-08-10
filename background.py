@@ -188,12 +188,12 @@ class Background:
 
         self.export_pgn = Button(
             self.canvas,
-            text="export PGN",
+            text="copy PGN to clipboard",
             width=10,
             height=2,
             font=("Arial", 10),
             state="normal",
-            wraplength=150,
+            wraplength=70,
             command=partial(self.export_pgn_from_board),
         )
 
