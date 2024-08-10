@@ -290,6 +290,12 @@ class Board:
                 ]
                 if truncated_fen in self.repertoire_fens:
                     fen_idx = self.repertoire_fens.index(truncated_fen)
+                    indices = [i for i, x in enumerate(self.repertoire_fens) if x == truncated_fen]
+                    if len(indices) > 1:
+                        for move_idx in indices:
+                            if self.repertoire_moves[move_idx].name == new_move_san:
+                                fen_idx = move_idx
+                                break
                     self.repertoire_loaded_moves.append(self.repertoire_moves[fen_idx])
                     self.next_move(
                         self.repertoire_moves[fen_idx], "b" if is_white else "w"
