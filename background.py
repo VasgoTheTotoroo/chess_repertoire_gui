@@ -165,7 +165,7 @@ class Background:
             self.canvas,
             text="",
             bd=0,
-            wraplength=800,
+            wraplength=900,
             width=110,
             height=8,
             font=("Arial", 10),
