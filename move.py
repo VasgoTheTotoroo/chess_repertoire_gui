@@ -5,8 +5,14 @@ class Move:
     """this class is a chess Move"""
 
     def __init__(
-        self, name, fen, comments=None, parent=None, evaluation=None, main_variant=True,
-        file_header =None
+        self,
+        name,
+        fen,
+        comments=None,
+        parent=None,
+        evaluation=None,
+        main_variant=True,
+        file_header=None,
     ):
         self.name: str = name
         self.parent: Move | None = parent

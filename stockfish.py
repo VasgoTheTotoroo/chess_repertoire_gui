@@ -14,7 +14,7 @@ async def main(fen):
     mulitpv = 4
     max_depth = 30
     threads = 12
-    hash = 33554
+    hash_size = 33554
     moves_score_str = {}
 
     board = chess.Board(fen)
@@ -22,7 +22,7 @@ async def main(fen):
         r"c:\Users\Vassia\Desktop\echec\stockfish\stockfish-windows-x86-64.exe"
     )
     await engine.configure({"Threads": threads})
-    await engine.configure({"Hash": hash})
+    await engine.configure({"Hash": hash_size})
     with await engine.analysis(board=board, multipv=mulitpv) as analysis:
         async for info in analysis:
             current_depth = info.get("depth", 0)
