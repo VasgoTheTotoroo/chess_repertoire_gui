@@ -652,6 +652,10 @@ class Board:
                 ]
             self.master_window.update_canvas(None)
 
+    def modify_last_move_comment(self, move_comment: str):
+        self.repertoire_loaded_moves[-1].comments = move_comment
+        self.master_window.update_canvas(None)
+
     def new_file_for_last_move(self):
         if self.repertoire_loaded_moves[-1].parent is not None:
             children_idx = self.repertoire_loaded_moves[-1].parent.children.index(

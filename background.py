@@ -56,7 +56,7 @@ class Background:
         self.white_button = Button(
             self.canvas,
             text="WHITE",
-            width=15,
+            width=5,
             height=2,
             font=("Arial", 10),
             command=partial(self.switch_to_white_repertoire),
@@ -64,7 +64,7 @@ class Background:
         self.black_button = Button(
             self.canvas,
             text="BLACK",
-            width=15,
+            width=5,
             height=2,
             font=("Arial", 10),
             command=partial(self.switch_to_black_repertoire),
@@ -72,7 +72,7 @@ class Background:
         self.reset_button = Button(
             self.canvas,
             text="RESET",
-            width=15,
+            width=5,
             height=2,
             font=("Arial", 10),
             command=partial(self.reset_game),
@@ -128,7 +128,7 @@ class Background:
             state="disabled",
             command=partial(self.save_to_repertoire),
         )
-        self.move_eval_box = Text(
+        self.move_text_box = Text(
             self.canvas,
             width=8,
             height=2,
@@ -146,9 +146,9 @@ class Background:
         self.new_file = Button(
             self.canvas,
             text="move in a new file (to do after)",
-            width=9,
+            width=15,
             height=2,
-            wraplength=70,
+            wraplength=120,
             font=("Arial", 10),
             command=partial(self.new_file_for_last_move),
         )
@@ -197,6 +197,17 @@ class Background:
             command=partial(self.export_pgn_from_board),
         )
 
+        self.modify_comment = Button(
+            self.canvas,
+            text="edit comment",
+            width=10,
+            height=2,
+            font=("Arial", 10),
+            state="normal",
+            wraplength=70,
+            command=partial(self.edit_move_comment),
+        )
+
     def update(self, window: Tk, play_random, board_width, board_position):
         """Update the background width and height"""
 
@@ -210,23 +221,28 @@ class Background:
             x=board_width + board_position + 50, y=board_position
         )
 
-        self.white_button.place(x=board_width + board_position + 225, y=board_position)
-        self.black_button.place(x=board_width + board_position + 400, y=board_position)
-        self.reset_button.place(x=board_width + board_position + 575, y=board_position)
-        self.take_back_button.place(
-            x=board_width + board_position + 750, y=board_position
-        )
         self.flip_button.place(x=board_width + board_position + 10, y=board_position)
+        self.white_button.place(x=board_width + board_position + 190, y=board_position)
+        self.black_button.place(x=board_width + board_position + 250, y=board_position)
+        self.reset_button.place(x=board_width + board_position + 310, y=board_position)
+        self.take_back_button.place(
+            x=board_width + board_position + 370, y=board_position
+        )
+        self.move_text_box.place(x=board_width + board_position + 510, y=board_position)
+        self.move_eval_send.place(
+            x=board_width + board_position + 580, y=board_position
+        )
+        self.modify_comment.place(
+            x=board_width + board_position + 680, y=board_position
+        )
 
         self.save_repertoire.place(x=board_width + board_position + 50, y=board_width)
-        self.move_eval_box.place(x=board_width + board_position + 225, y=board_width)
-        self.move_eval_send.place(x=board_width + board_position + 300, y=board_width)
-        self.new_file.place(x=board_width + board_position + 400, y=board_width)
-        self.delete_move.place(x=board_width + board_position + 500, y=board_width)
+        self.new_file.place(x=board_width + board_position + 190, y=board_width)
+        self.delete_move.place(x=board_width + board_position + 330, y=board_width)
         self.compute_stockfish.place(
-            x=board_width + board_position + 650, y=board_width
+            x=board_width + board_position + 470, y=board_width
         )
-        self.export_pgn.place(x=board_width + board_position + 800, y=board_width)
+        self.export_pgn.place(x=board_width + board_position + 610, y=board_width)
 
         if self.master_window.board.stockfish_sub_process is None:
             self.stockfish.place_forget()
@@ -307,9 +323,9 @@ class Background:
         self.master_window.board.save_to_repertoire()
 
     def send_eval(self):
-        move_eval = self.move_eval_box.get(1.0, "end")
+        move_eval = self.move_text_box.get(1.0, "end")
         self.master_window.board.modify_last_move_eval(move_eval[:-1])
-        self.move_eval_box.delete(1.0, "end")
+        self.move_text_box.delete(1.0, "end")
 
     def new_file_for_last_move(self):
         self.master_window.board.new_file_for_last_move()
@@ -358,3 +374,8 @@ class Background:
             self.master_window.board.chess_board.move_stack
         )
         pyperclip.copy(text)
+
+    def edit_move_comment(self):
+        comment = self.move_text_box.get(1.0, "end")
+        self.master_window.board.modify_last_move_comment(comment[:-1])
+        self.move_text_box.delete(1.0, "end")
