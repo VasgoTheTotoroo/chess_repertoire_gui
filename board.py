@@ -616,12 +616,12 @@ class Board:
         if (
             self.chess_board.fen()
             == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        ):
+        ) or len(self.repertoire_loaded_moves) < 1:
             return
         self.take_back_last()
 
     def play_main_variant_move(self, _: Event):
-        if len(self.repertoire_loaded_moves) > 0:
+        if len(self.repertoire_loaded_moves) < 1:
             return
         self.next_move(
             self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b", True
