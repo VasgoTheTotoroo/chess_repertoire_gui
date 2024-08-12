@@ -621,6 +621,8 @@ class Board:
         self.take_back_last()
 
     def play_main_variant_move(self, _: Event):
+        if len(self.repertoire_loaded_moves) > 0:
+            return
         self.next_move(
             self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b", True
         )
