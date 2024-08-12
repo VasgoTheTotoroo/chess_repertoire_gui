@@ -350,7 +350,6 @@ class Background:
         )
         if self.master_window.board.stockfish_sub_process is None:
             self.master_window.window.after_cancel(self.stockfish_reload_id)
-            self.stockfish.place_forget()
         else:
             self.stockfish.place(
                 x=self.master_window.board.board_width
