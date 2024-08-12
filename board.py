@@ -134,6 +134,7 @@ class Board:
         """Bind the events for the board"""
 
         # drag & drop the piece
+        self.master_window.window.bind("<Left>", self.take_back_last_event)
         self.canvas.bind("<ButtonPress-1>", self.select_piece)
         self.canvas.bind("<Motion>", self.display_move_comment)
 
@@ -591,6 +592,14 @@ class Board:
             main_var = "1" if c.main_variant else "0"
             self.arrows.append(uci_move + main_var + str(move_idx))
         self.draw_arrows()
+
+    def take_back_last_event(self, _: Event):
+        if (
+            self.chess_board.fen()
+            == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        ):
+            return
+        self.take_back_last()
 
     def take_back_last(self, delete_latest=False):
         self.white_to_play = not self.white_to_play
