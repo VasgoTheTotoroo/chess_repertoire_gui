@@ -640,6 +640,7 @@ class Board:
         self.current_comments = []
         if self.stockfish_sub_process is not None:
             self.master_window.background.compute_stockfish_score()
+        self.master_window.background.stockfish.place_forget()
         self.master_window.update_canvas(None)
 
     def flip_board(self):
