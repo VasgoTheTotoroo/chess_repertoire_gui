@@ -135,6 +135,7 @@ class Board:
 
         # drag & drop the piece
         self.master_window.window.bind("<Left>", self.take_back_last_event)
+        self.master_window.window.bind("<Right>", self.play_main_variant_move)
         self.canvas.bind("<ButtonPress-1>", self.select_piece)
         self.canvas.bind("<Motion>", self.display_move_comment)
 
@@ -542,8 +543,9 @@ class Board:
                     (move_full_print(move), move.main_variant, font_color)
                 )
 
-    def next_move(self, move, b_or_w):
+    def next_move(self, move, b_or_w, play_main_variant=False):
         self.arrows = []
+        self.current_comments = []
         self.draw_arrows()
 
         self.update_comment_to_display([move])
@@ -567,6 +569,23 @@ class Board:
             # pick a random move
             random_move = random.choice(list(filter(is_not_a_bad_move, all_children)))
             new_move = random_move
+            self.repertoire_loaded_moves.append(new_move)
+            self.chess_board.push_san(new_move.name[new_move.name.find(" ") + 1 :])
+            self.white_to_play = not self.white_to_play
+            self.master_window.update_canvas(None)
+
+        if play_main_variant:
+            idx = self.repertoire_moves.index(move)
+            all_children = find_all_children(
+                self.transposition_dict,
+                self.repertoire_fens[idx],
+                self.repertoire_moves,
+                idx,
+                False,
+            )
+            # pick the main variant move
+            all_children.sort(key=lambda c: int(not c.main_variant))
+            new_move = all_children[0]
             self.repertoire_loaded_moves.append(new_move)
             self.chess_board.push_san(new_move.name[new_move.name.find(" ") + 1 :])
             self.white_to_play = not self.white_to_play
@@ -600,6 +619,11 @@ class Board:
         ):
             return
         self.take_back_last()
+
+    def play_main_variant_move(self, _: Event):
+        self.next_move(
+            self.repertoire_loaded_moves[-1], "w" if self.white_to_play else "b", True
+        )
 
     def take_back_last(self, delete_latest=False):
         self.white_to_play = not self.white_to_play
