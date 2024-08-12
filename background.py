@@ -244,9 +244,6 @@ class Background:
         )
         self.export_pgn.place(x=board_width + board_position + 610, y=board_width)
 
-        if self.master_window.board.stockfish_sub_process is None:
-            self.stockfish.place_forget()
-
         if (
             len(self.master_window.board.repertoire_loaded_moves) > 0
             and self.master_window.board.repertoire_loaded_moves[-1].name != ""
