@@ -583,13 +583,14 @@ class Board:
                 idx,
                 False,
             )
-            # pick the main variant move
-            all_children.sort(key=lambda c: int(not c.main_variant))
-            new_move = all_children[0]
-            self.repertoire_loaded_moves.append(new_move)
-            self.chess_board.push_san(new_move.name[new_move.name.find(" ") + 1 :])
-            self.white_to_play = not self.white_to_play
-            self.master_window.update_canvas(None)
+            if len(all_children) > 0:
+                # pick the main variant move
+                all_children.sort(key=lambda c: int(not c.main_variant))
+                new_move = all_children[0]
+                self.repertoire_loaded_moves.append(new_move)
+                self.chess_board.push_san(new_move.name[new_move.name.find(" ") + 1 :])
+                self.white_to_play = not self.white_to_play
+                self.master_window.update_canvas(None)
 
         idx = self.repertoire_moves.index(new_move)
         all_children = find_all_children(
@@ -753,3 +754,18 @@ class Board:
     def kill_stockfish_sub_process(self, sub_process: subprocess.Popen):
         sub_process.kill()
         self.stockfish_sub_process = None
+
+    def set_last_move_to_main_variant(self):
+        if len(self.repertoire_loaded_moves) < 1:
+            return
+        idx = self.repertoire_moves.index(self.repertoire_loaded_moves[-1].parent)  # type: ignore
+        all_children = find_all_children(
+            self.transposition_dict,
+            self.repertoire_fens[idx],
+            self.repertoire_moves,
+            idx,
+            False,
+        )
+        for c in all_children:
+            c.main_variant = False
+        self.repertoire_loaded_moves[-1].main_variant = True

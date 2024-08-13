@@ -208,6 +208,17 @@ class Background:
             command=partial(self.edit_move_comment),
         )
 
+        self.set_main_variant = Button(
+            self.canvas,
+            text="set to main variant",
+            width=10,
+            height=2,
+            font=("Arial", 10),
+            state="normal",
+            wraplength=70,
+            command=partial(self.set_last_move_main),
+        )
+
     def update(self, window: Tk, play_random, board_width, board_position):
         """Update the background width and height"""
 
@@ -234,6 +245,9 @@ class Background:
         )
         self.modify_comment.place(
             x=board_width + board_position + 680, y=board_position
+        )
+        self.set_main_variant.place(
+            x=board_width + board_position + 780, y=board_position
         )
 
         self.save_repertoire.place(x=board_width + board_position + 50, y=board_width)
@@ -375,3 +389,6 @@ class Background:
         comment = self.move_text_box.get(1.0, "end")
         self.master_window.board.modify_last_move_comment(comment[:-1])
         self.move_text_box.delete(1.0, "end")
+
+    def set_last_move_main(self):
+        self.master_window.board.set_last_move_to_main_variant()
