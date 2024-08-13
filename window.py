@@ -1,6 +1,7 @@
 """This module implement the Window class"""
 
 from tkinter import Tk
+
 from background import Background
 from board import Board
 

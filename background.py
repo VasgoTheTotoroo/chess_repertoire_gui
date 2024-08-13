@@ -9,17 +9,9 @@ import chess
 import pyperclip
 
 from utils import move_full_print
+from dictionaries import eval_color
 
 directory_path = os.path.abspath(os.path.dirname(__file__))
-
-eval_color = {
-    "$1": "#749BBF",
-    "$2": "#FFA459",
-    "$3": "#26c2a3",
-    "$4": "#FA412D",
-    "$5": "#7979a1",
-    "$6": "#F7C631",
-}
 
 
 class Background:

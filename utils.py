@@ -3,36 +3,11 @@ import re
 import os
 import subprocess
 from collections import defaultdict
+
 from move import Move
+from dictionaries import evaluation_dict
 
 directory_path = os.path.abspath(os.path.dirname(__file__))
-
-evaluation_dict = {
-    "$1": "!",
-    "$2": "?",
-    "$3": "!!",
-    "$4": "??",
-    "$5": "!?",
-    "$6": "?!",
-    "$8": "only move",
-    "$22": "Zugzwang",
-    "$16": "W advantage",
-    "$18": "+-",
-    "$11": "=",
-    "$13": "not clear",
-    "$15": "little B advantage",
-    "$17": "B advantage",
-    "$19": "-+",
-    "$44": "compensation",
-    "$40": "attack",
-    "$36": "initiative",
-    "$132": "counterplay",
-    "$138": "zeitnot",
-    "$32": "development advantage",
-    "$146": "N",
-    "$140": "with the idea",
-    "$14": "little W advantage",
-}
 
 
 def find_parens(s):

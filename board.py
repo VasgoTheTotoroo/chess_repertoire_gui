@@ -8,6 +8,7 @@ from tkinter import Tk, Canvas, Event
 import chess
 import PIL.Image
 import PIL.ImageTk
+
 from move import Move
 from utils import (
     build_fen_dict,
@@ -17,51 +18,16 @@ from utils import (
     traversal_tree,
     save_to_repertoire,
 )
+from dictionaries import (
+    file_dict,
+    rank_dict,
+    reversed_file_dict,
+    reversed_rank_dict,
+    eval_color,
+    reversed_eval_dict,
+)
 
 directory_path = os.path.abspath(os.path.dirname(__file__))
-
-file_dict = {0: "a", 1: "b", 2: "c", 3: "d", 4: "e", 5: "f", 6: "g", 7: "h"}
-rank_dict = {0: "8", 1: "7", 2: "6", 3: "5", 4: "4", 5: "3", 6: "2", 7: "1"}
-
-reversed_file_dict = {v: k for k, v in file_dict.items()}
-reversed_rank_dict = {v: k for k, v in rank_dict.items()}
-
-evaluation_dict = {
-    "$1": "!",
-    "$2": "?",
-    "$3": "!!",
-    "$4": "??",
-    "$5": "!?",
-    "$6": "?!",
-    "$8": "only move",
-    "$22": "Zugzwang",
-    "$16": "W advantage",
-    "$18": "+-",
-    "$11": "=",
-    "$13": "not clear",
-    "$15": "little B advantage",
-    "$17": "B advantage",
-    "$19": "-+",
-    "$44": "compensation",
-    "$40": "attack",
-    "$36": "initiative",
-    "$132": "counterplay",
-    "$138": "zeitnot",
-    "$32": "development advantage",
-    "$146": "N",
-    "$140": "with the idea",
-    "$14": "little W advantage",
-}
-reversed_eval_dict = {v: k for k, v in evaluation_dict.items()}
-
-eval_color = {
-    "$1": "#749BBF",
-    "$2": "#FFA459",
-    "$3": "#26c2a3",
-    "$4": "#FA412D",
-    "$5": "#7979a1",
-    "$6": "#F7C631",
-}
 
 
 class Board:
@@ -537,7 +503,7 @@ class Board:
                 font_color = "#000000"
                 if move.evaluation:
                     for chess_eval in move.evaluation:
-                        if chess_eval in list(eval_color.keys()):
+                        if chess_eval in eval_color:
                             font_color = eval_color[chess_eval]
                 self.current_comments.append(
                     (move_full_print(move), move.main_variant, font_color)
