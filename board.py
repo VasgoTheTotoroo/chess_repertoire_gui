@@ -16,6 +16,7 @@ from utils import (
     find_all_children,
     is_not_a_bad_move,
     move_full_print,
+    parse_config,
     traversal_tree,
     save_to_repertoire,
 )
@@ -707,9 +708,10 @@ class Board:
         if self.stockfish_sub_process is not None:
             self.kill_stockfish_sub_process(self.stockfish_sub_process)
         else:
+            config = parse_config()
             p = subprocess.Popen(
                 args=[
-                    "python",
+                    config["python_exec_command"],
                     directory_path / "stockfish.py",
                     self.chess_board.fen(),
                 ]

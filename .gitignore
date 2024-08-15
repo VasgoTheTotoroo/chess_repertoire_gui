@@ -6,7 +6,6 @@ __pycache__/
 deprecated/
 pgns/
 pgn-extract.exe
-stockfish.txt
 repertoire/
 
 .vscode

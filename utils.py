@@ -301,3 +301,12 @@ def save_to_repertoire(b_or_w, fake_move):
     ) as handle:
         pickle.dump(fake_move, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print("repertoire saved!")
+
+def parse_config():
+    raw_config = open(directory_path / "configuration.txt", "r", encoding="utf-8")
+    raw_config = raw_config.read().split("\n")
+    config = {}
+    for conf in raw_config:
+        key, value = conf.split("=")
+        config[key] = value
+    return config

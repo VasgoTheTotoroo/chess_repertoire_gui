@@ -8,6 +8,8 @@ import chess
 import chess.engine
 from pathlib import Path
 
+from utils import parse_config
+
 directory_path = Path(os.path.abspath(os.path.dirname(__file__)))
 
 
@@ -17,10 +19,11 @@ async def main(fen):
     threads = 12
     hash_size = 33554
     moves_score_str = {}
+    config = parse_config()
 
     board = chess.Board(fen)
     _, engine = await chess.engine.popen_uci(
-        r"c:\Users\Vassia\Desktop\echec\stockfish\stockfish-windows-x86-64.exe"
+        Path(config["stockfish_path"])
     )
     await engine.configure({"Threads": threads})
     await engine.configure({"Hash": hash_size})

@@ -364,7 +364,7 @@ class Background:
             self.refresh_stockfish()
 
     def refresh_stockfish(self):
-        sf_log = open(directory_path + r"\stockfish.txt", "r", encoding="utf-8")
+        sf_log = open(directory_path / "stockfish.txt", "r", encoding="utf-8")
         stockfish_text = sf_log.read()
         sf_log.close()
         self.stockfish.config(text=stockfish_text)

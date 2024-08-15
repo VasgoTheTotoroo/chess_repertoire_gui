@@ -17,6 +17,7 @@ from utils import (
     find_all_children,
     french_chess,
     is_not_a_bad_move,
+    parse_config,
     read_and_build_tree,
     remove_temp_pgn,
     repertoire_to_pgn,
@@ -245,16 +246,6 @@ def main(usecase):
         print("repertoire exported to pgns!")
     else:
         raise ValueError("The argument you passed to the program is not known")
-
-
-def parse_config():
-    raw_config = open(directory_path / "configuration.txt", "r", encoding="utf-8")
-    raw_config = raw_config.read().split("\n")
-    config = {}
-    for conf in raw_config:
-        key, value = conf.split("=")
-        config[key] = value
-    return config
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:

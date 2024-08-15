@@ -1,2 +1,4 @@
 window_width=1500
 window_height=600
+stockfish_path=/Users/vassia/Downloads/stockfish/stockfish-macos-m1-apple-silicon
+python_exec_command=python3
