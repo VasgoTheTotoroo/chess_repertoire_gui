@@ -11,8 +11,8 @@ class Window:
 
     def __init__(
         self,
-        init_width: int = 1700,
-        init_height: int = 800,
+        init_width: int,
+        init_height: int,
         init_x: int = 0,
         init_y: int = 0,
     ):

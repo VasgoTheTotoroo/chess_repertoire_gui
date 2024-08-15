@@ -8,6 +8,8 @@ import sys
 import textwrap
 import csv
 import locale
+from pathlib import Path
+
 from move import Move
 from window import Window
 from utils import (
@@ -22,11 +24,11 @@ from utils import (
     traversal_tree,
 )
 
+directory_path = Path(os.path.abspath(os.path.dirname(__file__)))
 
 def main(usecase):
     """Main method of the program, start the game and implements the CLI usages"""
 
-    directory_path = os.path.abspath(os.path.dirname(__file__))
     is_french = locale.getlocale()[0] == "fr_FR"
 
     # find all the transpositions in the pgn files
@@ -126,7 +128,7 @@ def main(usecase):
                 The file need to be in the pgn subdirectory"""
             )
         file_name = sys.argv[2]
-        file = open(directory_path + r"\pgns\\" + file_name, encoding="utf-8")
+        file = open(directory_path / "pgns" / file_name, encoding="utf-8")
         file_str = file.read().split('[Event "')
 
         for i, s in enumerate(file_str[1:]):
@@ -149,7 +151,7 @@ def main(usecase):
             )
             print(file_name)
             f = open(
-                os.path.join(directory_path + r"\pgns\\", file_name),
+                directory_path / "pgns" / file_name,
                 "w",
                 encoding="utf-8",
             )
@@ -173,9 +175,9 @@ def main(usecase):
     # Fill opening names into your pgns
     elif usecase == "fill_opening_names":
         eco_codes = []
-        for file in os.listdir(directory_path + r"\chess-openings"):
+        for file in os.listdir(directory_path / "chess-openings"):
             if file.endswith(".tsv"):
-                full_path_file = directory_path + r"\chess-openings\\" + file
+                full_path_file = directory_path / "chess-openings" / file
                 tab_file = open(full_path_file, encoding="utf-8")
                 tsv_file = csv.reader(tab_file, delimiter="\t")
                 for line in tsv_file:
@@ -184,13 +186,13 @@ def main(usecase):
                         eco_codes.append([line[1], truncated_fen])
                 tab_file.close()
 
-        for file in os.listdir(directory_path + r"\pgns"):
+        for file in os.listdir(directory_path / "pgns"):
             fake_move = Move("", fen="w ")
-            full_path_file = directory_path + r"\pgns\\" + file
+            full_path_file = directory_path / "pgns" / file
             if file.endswith(".pgn") and file != "game1.pgn":
                 subprocess.check_call(
                     [
-                        directory_path + r"\pgn-extract.exe",
+                        directory_path / "pgn-extract.exe",
                         "-F",
                         "--fencomments",
                         full_path_file,
@@ -245,9 +247,19 @@ def main(usecase):
         raise ValueError("The argument you passed to the program is not known")
 
 
+def parse_config():
+    raw_config = open(directory_path / "configuration.txt", "r", encoding="utf-8")
+    raw_config = raw_config.read().split("\n")
+    config = {}
+    for conf in raw_config:
+        key, value = conf.split("=")
+        config[key] = value
+    return config
+
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         # Play a game (GUI)
-        Window()
+        configuration = parse_config()
+        Window(int(configuration["window_width"]), int(configuration["window_height"]))
     else:
         main(sys.argv[1])

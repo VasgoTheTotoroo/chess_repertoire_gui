@@ -3,6 +3,7 @@
 import os
 from tkinter import Button, Label, Tk, Canvas, Text
 from functools import partial
+from pathlib import Path
 import PIL.Image
 import PIL.ImageTk
 import chess
@@ -11,7 +12,7 @@ import pyperclip
 from utils import move_full_print
 from dictionaries import eval_color
 
-directory_path = os.path.abspath(os.path.dirname(__file__))
+directory_path = Path(os.path.abspath(os.path.dirname(__file__)))
 
 
 class Background:
@@ -79,7 +80,7 @@ class Background:
             command=partial(self.take_back_move),
         )
 
-        image_file = PIL.Image.open(directory_path + r"\images\flip.png")
+        image_file = PIL.Image.open(directory_path / "images" / "flip.png")
         image_file = image_file.resize((17, 17))
         self.flip_img = PIL.ImageTk.PhotoImage(image_file)  # keep a reference!
         self.flip_button = Button(

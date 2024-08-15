@@ -3,11 +3,12 @@ import re
 import os
 import subprocess
 from collections import defaultdict
+from pathlib import Path
 
 from move import Move
 from dictionaries import evaluation_dict
 
-directory_path = os.path.abspath(os.path.dirname(__file__))
+directory_path = Path(os.path.abspath(os.path.dirname(__file__)))
 
 
 def find_parens(s):
@@ -103,12 +104,12 @@ def read_and_build_tree():
     while True:
         fake_move = Move("", fen="w ")
         try:
-            for file in os.listdir(directory_path + r"\pgns"):
-                full_path_file = directory_path + r"\pgns\\" + file
+            for file in os.listdir(directory_path / "pgns"):
+                full_path_file = directory_path / "pgns" / file
                 if file.endswith(".pgn") and file != "game1.pgn":
                     subprocess.check_call(
                         [
-                            directory_path + r"\pgn-extract.exe",
+                            directory_path / "pgn-extract.exe",
                             "-F",
                             "--fencomments",
                             full_path_file,
@@ -148,7 +149,7 @@ def read_and_build_tree():
 
 def repertoire_to_pgn(b_or_w):
     with open(
-        os.path.join(directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"),
+        directory_path / "repertoire" / (b_or_w + ".repertoire.pickle"),
         "rb",
     ) as handle:
         fake_move: Move = pickle.load(handle)
@@ -171,7 +172,7 @@ def repertoire_to_pgn(b_or_w):
             file_name = "(" + str(i + 1) + ")" + file_name + ".pgn"
             print(file_name)
             write_pgn = open(
-                directory_path + r"\pgns\\" + file_name, "w", encoding="utf-8"
+                directory_path / "pgns" / file_name, "w", encoding="utf-8"
             )
             write_pgn.write(child.file_header[child.file_header.find("[") :] + "\n\n")
             write_pgn.write(build_pgn_move(child) + " *\n\n")
@@ -239,7 +240,7 @@ def is_not_a_bad_move(move):
     return True
 
 
-def remove_temp_pgn(path=directory_path + r"\pgns"):
+def remove_temp_pgn(path=directory_path / "pgns"):
     for file in os.listdir(path):
         if file.endswith("_temp.pgn"):
             if os.path.exists(path + "\\" + file):
@@ -295,7 +296,7 @@ def move_full_print(move):
 
 def save_to_repertoire(b_or_w, fake_move):
     with open(
-        os.path.join(directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"),
+        directory_path / "repertoire" / (b_or_w + ".repertoire.pickle"),
         "wb",
     ) as handle:
         pickle.dump(fake_move, handle, protocol=pickle.HIGHEST_PROTOCOL)

@@ -6,8 +6,9 @@ import re
 import asyncio
 import chess
 import chess.engine
+from pathlib import Path
 
-directory_path = os.path.abspath(os.path.dirname(__file__))
+directory_path = Path(os.path.abspath(os.path.dirname(__file__)))
 
 
 async def main(fen):
@@ -37,7 +38,7 @@ async def main(fen):
                 )
                 pv_str += variation
                 moves_score_str[info.get("multipv")] = pv_str
-                sf_log = open(directory_path + r"\stockfish.txt", "w", encoding="utf-8")
+                sf_log = open(directory_path / "stockfish.txt", "w", encoding="utf-8")
                 sf_log.write(
                     "profondeur : "
                     + str(current_depth)

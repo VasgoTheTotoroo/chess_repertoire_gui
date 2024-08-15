@@ -5,6 +5,7 @@ import pickle
 import random
 import subprocess
 from tkinter import Tk, Canvas, Event
+from pathlib import Path
 import chess
 import PIL.Image
 import PIL.ImageTk
@@ -27,7 +28,7 @@ from dictionaries import (
     reversed_eval_dict,
 )
 
-directory_path = os.path.abspath(os.path.dirname(__file__))
+directory_path = Path(os.path.abspath(os.path.dirname(__file__)))
 
 
 class Board:
@@ -463,9 +464,9 @@ class Board:
         """Load the images and save it to the board object images_dict"""
         base_length: float = self.board_width / self.nb_rows
         images_dict = {}
-        for file in os.listdir(directory_path + r"\images\pieces"):
+        for file in os.listdir(directory_path / "images" / "pieces"):
             if file.endswith(".png"):
-                full_path_file = directory_path + r"\images\pieces\\" + file
+                full_path_file = directory_path / "images" / "pieces" / file
                 image_file = PIL.Image.open(full_path_file)
                 image_file = image_file.resize((int(base_length), int(base_length)))
                 piece = file[1] if file[0] == "b" else file[1].upper()
@@ -478,9 +479,7 @@ class Board:
     def choose_color(self, b_or_w):
         self.reset_game()
         with open(
-            os.path.join(
-                directory_path + r"\repertoire\\", b_or_w + ".repertoire.pickle"
-            ),
+                directory_path / "repertoire" / (b_or_w + ".repertoire.pickle"),
             "rb",
         ) as handle:
             self.repertoire_loaded_moves.append(pickle.load(handle))
@@ -711,7 +710,7 @@ class Board:
             p = subprocess.Popen(
                 args=[
                     "python",
-                    directory_path + r"\stockfish.py",
+                    directory_path / "stockfish.py",
                     self.chess_board.fen(),
                 ]
             )

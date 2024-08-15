@@ -1,0 +1,2 @@
+window_width=1500
+window_height=600
