@@ -10,3 +10,4 @@ stockfish.txt
 repertoire/
 
 .vscode
+.DS_store
