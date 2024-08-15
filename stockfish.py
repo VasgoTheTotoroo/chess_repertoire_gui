@@ -14,12 +14,12 @@ directory_path = Path(os.path.abspath(os.path.dirname(__file__)))
 
 
 async def main(fen):
+    config = parse_config()
     mulitpv = 4
     max_depth = 30
-    threads = 12
-    hash_size = 33554
+    threads = int(config["stockfish_threads"])
+    hash_size = int(config["stockfish_hash_size"])
     moves_score_str = {}
-    config = parse_config()
 
     board = chess.Board(fen)
     _, engine = await chess.engine.popen_uci(

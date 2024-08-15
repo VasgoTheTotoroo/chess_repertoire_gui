@@ -595,6 +595,8 @@ class Board:
         )
 
     def take_back_last(self, delete_latest=False):
+        if len(self.repertoire_loaded_moves) < 1 or self.chess_board.fen() == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1":
+            return
         self.white_to_play = not self.white_to_play
         self.chess_board.pop()
         deleted_move = self.repertoire_loaded_moves.pop()
