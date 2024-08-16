@@ -161,7 +161,7 @@ class Background:
             self.canvas,
             text="",
             bd=0,
-            wraplength=870,
+            wraplength=650, # mac 650, windows 870
             width=110,
             height=10,
             font=("Arial", 10),
@@ -364,7 +364,13 @@ class Background:
             self.refresh_stockfish()
 
     def refresh_stockfish(self):
-        sf_log = open(directory_path / "stockfish.txt", "r", encoding="utf-8")
+        try:
+            sf_log = open(directory_path / "stockfish.txt", "r", encoding="utf-8")
+        except FileNotFoundError:
+            self.stockfish_reload_id = self.master_window.window.after(
+            20, self.refresh_stockfish
+            )
+            return
         stockfish_text = sf_log.read()
         sf_log.close()
         self.stockfish.config(text=stockfish_text)
