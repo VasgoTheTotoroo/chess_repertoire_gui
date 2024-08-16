@@ -270,49 +270,56 @@ class Board:
                             if self.repertoire_moves[move_idx].name == new_move_san:
                                 fen_idx = move_idx
                                 break
-                    self.repertoire_loaded_moves.append(self.repertoire_moves[fen_idx])
+                    if self.repertoire_moves[fen_idx].name != new_move_san:
+                        # it's a new move despite finding the same fen
+                        self.add_new_move_to_repertoire(new_move_san)
+                    else:
+                        self.repertoire_loaded_moves.append(self.repertoire_moves[fen_idx])
                     self.next_move(
                         self.repertoire_moves[fen_idx], "b" if is_white else "w"
                     )
                 else:
                     # We don't find the fen in the list, it's a new move
-                    parent_truncated_fen = self.repertoire_loaded_moves[-1].fen[
-                        : self.repertoire_loaded_moves[-1].fen.find(
-                            " ", self.repertoire_loaded_moves[-1].fen.find(" ") + 1
-                        )
-                    ]
-                    parent = self.repertoire_loaded_moves[-1]
-                    if parent_truncated_fen in self.transposition_dict:
-                        # /!\ we have more than one move that transpose to this ie => more than 1 parent possible
-                        for move_idx in self.transposition_dict[parent_truncated_fen]:
-                            if (
-                                self.repertoire_moves[move_idx].comments is None
-                                or self.repertoire_moves[move_idx].comments.find(  # type: ignore
-                                    "Transposition"
-                                )
-                                == -1
-                            ):
-                                parent = self.repertoire_moves[move_idx]
-                                break
-                    new_move = Move(
-                        name=new_move_san,
-                        fen=self.chess_board.fen(),
-                        parent=parent,
-                        main_variant=len(parent.children) == 0,
-                    )
-                    parent.add_child(new_move)
-                    self.repertoire_loaded_moves.append(new_move)
-                    self.repertoire_fens = []
-                    self.repertoire_moves = []
-                    traversal_tree(
-                        self.repertoire_loaded_moves[0],
-                        self.repertoire_fens,
-                        self.repertoire_moves,
-                    )
-                    self.transposition_dict = build_fen_dict(self.repertoire_fens)
-                    self.arrows = []
+                    self.add_new_move_to_repertoire(new_move_san)
 
         self.master_window.update_canvas(None)
+
+    def add_new_move_to_repertoire(self, new_move_san: str):
+        parent_truncated_fen = self.repertoire_loaded_moves[-1].fen[
+            : self.repertoire_loaded_moves[-1].fen.find(
+                " ", self.repertoire_loaded_moves[-1].fen.find(" ") + 1
+            )
+        ]
+        parent = self.repertoire_loaded_moves[-1]
+        if parent_truncated_fen in self.transposition_dict:
+            # /!\ we have more than one move that transpose to this ie => more than 1 parent possible
+            for move_idx in self.transposition_dict[parent_truncated_fen]:
+                if (
+                    self.repertoire_moves[move_idx].comments is None
+                    or self.repertoire_moves[move_idx].comments.find(  # type: ignore
+                        "Transposition"
+                    )
+                    == -1
+                ):
+                    parent = self.repertoire_moves[move_idx]
+                    break
+        new_move = Move(
+            name=new_move_san,
+            fen=self.chess_board.fen(),
+            parent=parent,
+            main_variant=len(parent.children) == 0,
+        )
+        parent.add_child(new_move)
+        self.repertoire_loaded_moves.append(new_move)
+        self.repertoire_fens = []
+        self.repertoire_moves = []
+        traversal_tree(
+            self.repertoire_loaded_moves[0],
+            self.repertoire_fens,
+            self.repertoire_moves,
+        )
+        self.transposition_dict = build_fen_dict(self.repertoire_fens)
+        self.arrows = []
 
     def draw(
         self,
