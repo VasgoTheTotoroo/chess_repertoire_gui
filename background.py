@@ -328,7 +328,7 @@ class Background:
 
     def send_eval(self):
         move_eval = self.move_text_box.get(1.0, "end")
-        self.master_window.board.modify_last_move_eval(move_eval[:-1])
+        self.master_window.board.modify_last_move_eval(move_eval[:-1].split(" "))
         self.move_text_box.delete(1.0, "end")
 
     def new_file_for_last_move(self):

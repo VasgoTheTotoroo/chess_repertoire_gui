@@ -655,17 +655,18 @@ class Board:
     def save_to_repertoire(self):
         save_to_repertoire(self.player_color, self.repertoire_loaded_moves[0])
 
-    def modify_last_move_eval(self, move_eval: str):
-        if move_eval in reversed_eval_dict:
-            if self.repertoire_loaded_moves[-1].evaluation is not None:
+    def modify_last_move_eval(self, move_evals: list[str]):
+        if move_evals[0] == "":
+            self.repertoire_loaded_moves[-1].evaluation = None
+            return
+        if self.repertoire_loaded_moves[-1].evaluation is None:
+            self.repertoire_loaded_moves[-1].evaluation = []
+        for move_eval in move_evals:
+            if move_eval in reversed_eval_dict:
                 self.repertoire_loaded_moves[-1].evaluation.append(
                     reversed_eval_dict[move_eval]
                 )
-            else:
-                self.repertoire_loaded_moves[-1].evaluation = [
-                    reversed_eval_dict[move_eval]
-                ]
-            self.master_window.update_canvas(None)
+        self.master_window.update_canvas(None)
 
     def modify_last_move_comment(self, move_comment: str):
         self.repertoire_loaded_moves[-1].comments = move_comment
