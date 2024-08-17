@@ -273,11 +273,14 @@ class Board:
                     if self.repertoire_moves[fen_idx].name != new_move_san:
                         # it's a new move despite finding the same fen
                         self.add_new_move_to_repertoire(new_move_san)
+                        self.next_move(
+                            self.repertoire_loaded_moves[-1], "b" if is_white else "w"
+                        )
                     else:
                         self.repertoire_loaded_moves.append(self.repertoire_moves[fen_idx])
-                    self.next_move(
-                        self.repertoire_moves[fen_idx], "b" if is_white else "w"
-                    )
+                        self.next_move(
+                            self.repertoire_moves[fen_idx], "b" if is_white else "w"
+                        )
                 else:
                     # We don't find the fen in the list, it's a new move
                     self.add_new_move_to_repertoire(new_move_san)
