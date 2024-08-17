@@ -510,7 +510,7 @@ class Board:
         for move in moves:
             string = move_full_print(move)
             if string not in self.current_comments:
-                font_color = "#000000"
+                font_color = "#ffffff"
                 if move.evaluation:
                     for chess_eval in move.evaluation:
                         if chess_eval in eval_color:

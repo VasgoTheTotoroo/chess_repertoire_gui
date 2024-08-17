@@ -93,7 +93,7 @@ class Background:
             self.canvas,
             text="",
             bd=0,
-            wraplength=700,
+            wraplength=540, # mac 540, windows 700
             width=90,
             height=4,
             background="#ffe6bd",
@@ -106,7 +106,7 @@ class Background:
                     self.canvas,
                     text="",
                     bd=0,
-                    wraplength=700,
+                    wraplength=540, # mac 540, windows 700
                     width=90,
                     height=4,
                     font=("Arial", 10),
