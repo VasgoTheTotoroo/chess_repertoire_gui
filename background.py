@@ -109,6 +109,7 @@ class Background:
                     wraplength=540, # mac 540, windows 700
                     width=90,
                     height=4,
+                    bg="#4E3D28",
                     font=("Arial", 10),
                 )
             )
