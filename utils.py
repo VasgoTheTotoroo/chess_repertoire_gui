@@ -106,22 +106,25 @@ def read_and_build_tree():
         try:
             for file in os.listdir(directory_path / "pgns"):
                 full_path_file = directory_path / "pgns" / file
+                full_path_file_str = str(full_path_file)
                 if file.endswith(".pgn") and file != "game1.pgn":
+                    pgn_extract_str_path = str(directory_path / "pgn-extract") # if os windows, add .exe
+                    temp_file_str_path = full_path_file_str+"_temp.pgn"
                     subprocess.check_call(
                         [
-                            directory_path / "pgn-extract.exe",
+                            pgn_extract_str_path,
                             "-F",
                             "--fencomments",
-                            full_path_file,
+                            full_path_file_str,
                             "-o",
-                            full_path_file + "_temp.pgn",
+                            temp_file_str_path,
                         ]
                     )
 
-                    temp_pgn = open(full_path_file + "_temp.pgn", encoding="utf-8")
+                    temp_pgn = open(full_path_file_str + "_temp.pgn", encoding="utf-8")
                     fen_pgn = temp_pgn.read()
                     temp_pgn.close()
-                    header_file = open(full_path_file, encoding="utf-8")
+                    header_file = open(full_path_file_str, encoding="utf-8")
                     header_pgn = header_file.read()
                     header_file.close()
                     file_header = header_pgn[0 : header_pgn.find("\n\n")]
@@ -206,7 +209,7 @@ def build_move_unitary(move: Move):
     move_eval = ""
     if move.evaluation is not None:
         move_eval = " " + " ".join(move.evaluation)
-    return move.name + comment + move_eval
+    return move.name + move_eval + comment
 
 
 def traversal_tree(move: Move, fens: list[str], moves: list[Move]):
@@ -243,8 +246,8 @@ def is_not_a_bad_move(move):
 def remove_temp_pgn(path=directory_path / "pgns"):
     for file in os.listdir(path):
         if file.endswith("_temp.pgn"):
-            if os.path.exists(path + "\\" + file):
-                os.remove(path + "\\" + file)
+            if os.path.exists(path / file):
+                os.remove(path / file)
 
 
 def find_all_children(
